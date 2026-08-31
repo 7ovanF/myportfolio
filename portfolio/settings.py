@@ -33,13 +33,12 @@ if PRODUCTION:
 
     DEBUG = False
 
-    ALLOWED_HOSTS = []
 else:
     SECRET_KEY = 'django-insecure-@9e6f6%hu=gfb0rj-_c3bfp!eev_2efp1yj_ozuvylrxek7l*%'
 
     DEBUG = True
 
-    ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "jovan-finesta-myportfolio.pws.cs.ui.ac.id"]
 
 
 
