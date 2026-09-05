@@ -17,9 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from portfolio.views import landing_page
+from portfolio.views import landing_page, favicon
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', landing_page, name="landing_page"),
+    path('favicon.ico', favicon, name="favicon"),
 ]
