@@ -3,18 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jovan Finesta - Portfolio</title>
+    <title>Jovan F - Portfolio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cousine:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cousine:wght@400;700&display=swap">
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
     <header class="site-header">
-        <div class="container">
-            <a href="#profile" class="brand">Jovan Finesta</a>
+        <div class="header-tmux">
+            <!-- yes, the default config has the windows next to session name but that 
+                 kinda breaks normal perception -->
+            <a href="#profile">[jovan f]<!--
+             --><span id="current-host"></span>
+            </a>
             <nav>
-                <a href="#profile">Profile</a>
+                <a href="#profile" class="nav-active">0:profile</a> 
+                <a href="#projects">1:projects</a>
             </nav>
         </div>
     </header>
@@ -32,6 +37,7 @@
                     <img class="avatar" src="/static/img/tux.png" alt="Photo of Jovan ">
                 </div>
                 <div class="hero-details">
+                    <h2 class="bio-header">> about me</h2>
                     <p class="bio">A CS student at University of Indonesia. Interested in Linux systems, networking, security, a bit of self-hosting... I don't know what to self-host.</p>
                     <dl class="meta-list">
                         <div class="meta-row">
@@ -44,9 +50,17 @@
                         </div>
                     </dl>
                     <div class="social-links">
-                        <a href="https://github.com/7ovanf" class="social-link">GitHub</a>
-                        <a href="https://linkedin.com/in/jovan-finesta/" class="social-link">LinkedIn</a>
-                        <a href="jovanfinesta@protonmail.com" class="social-link">Email (yep, this shouldnt be a href...)</a>
+                        <!-- TODO: fontawesome icons -->
+                        <a href="https://github.com/7ovanf" class="social-link button">
+                            <ion-icon name="logo-github"></ion-icon>7ovanF
+                        </a>
+                        <a href="https://linkedin.com/in/jovan-finesta/" class="social-link button">
+                            <ion-icon name="logo-linkedin"></ion-icon>Jovan Finesta
+                        </a>
+                        <!-- TIL why people type [at] and [dot] -->
+                        <a href="mailto:jovanfinesta@protonmail.com" class="social-link button"><ion-icon name="mail-outline">
+                            </ion-icon>jovanfinesta [at] protonmail [dot] com
+                        </a>
                     </div>
                 </div>
             </div>
@@ -55,8 +69,22 @@
 
     <footer class="site-footer">
         <div class="container">
-            <p>&copy; 2026 Jovan. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
+            <div class="footer-content">
+                <p>&copy; 2026 Jovan Finesta. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
+                <a href="https://github.com/7ovanF/myportfolio">
+                    <ion-icon name="logo-github"></ion-icon>
+                    Source code
+                </a>
+            </div>
         </div>
     </footer>
+    <script type="module" src="https://unpkg.com/ionicons@8.0.13/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@8.0.13/dist/ionicons/ionicons.js"></script>
 </body>
+<script>
+    window.onload = function() {
+        var current_host = window.location.hostname;
+        document.getElementById("current-host").innerHTML = '"' + current_host + '"';
+    }
+</script>
 </html>

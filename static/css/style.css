@@ -1,3 +1,5 @@
+/* Universal settings */
+
 * {
     margin: 0;
     padding: 0;
@@ -6,35 +8,46 @@
 :root {
     /* Thanks to this project, I finally got an incentive to finally pick a consistent color scheme for my rice.
      * Also thanks to this project, I wasted 5 hours of my life figuring out my secondary and accents colors*/
-    --primary: #2ef0f1;
-    --secondary: #208ac0; 
-
+    --primary: #33ffff;
+    --primary-dim: #66dddd;
+    --secondary: #3399cc;
+    --accent: #669999;
+    --accent-dark: #336666;
     --paper: #1b1d1f;
-
-    --accent: #8bcaea;
-    --accent-dark: #6b9aaa;
-
+    
     --line: var(--accent-dark);
     --radius: 2px;
+    
+    --container-width: 960px;
+    --card-width: 320px;
 }
 
 body {
     font-family: "Cousine", Roboto, Helvetica, Arial, -apple-system, serif;
-    color: var(--accent-dark);
+    color: var(--primary-dim);
     background-color: var(--paper);
     line-height: 1.4;
 }
 
-h1, .brand {
-    font-family: "Cousine", -apple-system, serif;
-    color: var(--primary);
+.container {
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.divider {
+    max-width: var(--container-width);
+    margin: 0 auto;
+    border: none;
+    border-bottom: 1px solid var(--accent); /* invisible border to prevent it from moving on hover */
 }
 
 h1 {
+    padding: .05em;
+    margin-left: -.1em;
     border: 1px solid #00000000; /* invisible border to prevent it from moving on hover */
     border-radius: var(--radius);
-    padding: 4px;
-    margin-left: -4px;
+    color: var(--primary);
     transition: background-color 0.1s ease;
 }
 
@@ -44,42 +57,73 @@ h1:hover {
     background-color: var(--primary);
 }
 
-.container {
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 0 1.5rem;
+/* general button style */
+
+.button {
+    border: 1px solid var(--primary);
+    border-radius: var(--radius);
+    padding: 0.5rem 1.1rem;
+    text-decoration: none;
+    color: var(--primary);
+    transition: background-color 0.1s ease;
 }
 
-/* Header */
+.button:hover {
+    color: var(--paper);
+    background-color: var(--primary);
+}
+
+
+/* ==========
+Header // Nav
+========== */
+
 .site-header {
-    border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 0rem;
+    z-index: 100;
+    padding: 1em 1em 0em;
+    background-color: var(--paper);
 }
 
-.site-header .container {
+.header-tmux {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.25rem 1.5rem;
-}
-
-.brand {
-    font-size: 1.3rem;
-    font-weight: 700;
-    text-decoration: none;
+    font-size: 1rem;
+    background-color: var(--primary);
 }
 
 .site-header nav {
     display: flex;
-    gap: 2rem;
+}
+ 
+@media (max-width: 600px) {
+    .site-header nav {
+        /* TODO: implement */
+        display: none;
+    }
 }
 
-.site-header nav a {
-    color: var(--primary);
+.site-header a {
+    padding: 0 .3rem;
     text-decoration: none;
-    font-size: 0.95rem;
+    color: var(--paper);
+    transition: background-color 0.1s ease;
 }
 
-/* Hero */
+.site-header a:hover {
+    background-color: var(--secondary);
+}
+
+.site-header a.nav-active::after {
+    content:"*";
+}
+
+/* ====
+Hero 
+=====*/
+
 .hero {
     padding: 4.5rem 0 5rem;
 }
@@ -90,7 +134,7 @@ h1:hover {
     grid-template-areas:
         "identity photo"
         "details  photo";
-    gap: 1.5rem 3rem;
+    gap: 1rem 3rem;
 }
 
 .hero-identity {
@@ -115,32 +159,70 @@ h1:hover {
     line-height: 0.95;
 }
 
+@media (max-width: 600px) {
+    .hero-grid {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "identity"
+            "photo"
+            "details";
+    }
+}
+
+/* bio */
+
+.bio-header {
+    color: var(--accent);
+    font-weight: 400;
+    font-size: 1rem;
+}
+
 .bio {
-    color: var(--accent-dark);
+    color: var(--primary-dim);
     max-width: 480px;
     margin-bottom: 1.5rem;
 }
 
+/* list (NPM and prodi) */
+
 .meta-list {
-    display: flex;
+    display: block;
     gap: 2rem;
     margin-bottom: 1.5rem;
 }
 
+.meta-row dt, .meta-row dd {
+    display: inline-flex;
+}
+
 .meta-row dt {
-    font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: var(--accent-dark);
-    margin-bottom: 0.15rem;
+    color: var(--accent);
+    text-align: center;
+    width: 12ch;
+    margin-right: .5rem;
+}
+
+.meta-row dt::before {
+    content: "[";
+    display: inline-block;
+    margin-right: auto;
+}
+
+.meta-row dt::after {
+    content: "]";
+    display: inline-block;
+    margin-left: auto;
 }
 
 .meta-row dd {
     font-weight: 400;
-    color: var(--accent);
+    color: var(--primary);
 }
 
-/* I probably wanna make these just logos, they highlight to primary when hovered upon */
+/* social links */
+
 .social-links {
     display: flex;
     gap: 0.5rem;
@@ -150,24 +232,20 @@ h1:hover {
 .social-link {
     display: inline-block;
     font-size: 0.85rem;
-    font-weight: 400;
-    text-decoration: none;
-    color: var(--primary);
-    border: 1px solid var(--primary);
-    border-radius: var(--radius);
-    padding: 0.5rem 1.1rem;
-    transition: background-color 0.1s ease;
 }
 
-.social-link:hover {
-    color: var(--paper);
-    background-color: var(--primary);
-}
+/* photo */
 
 .hero-photo {
     grid-area: photo;
     align-self: center;
     position: relative;
+}
+
+@media (max-width: 600px) {
+    .hero-photo {
+        max-width: 220px;
+    }
 }
 
 .photo-block {
@@ -192,28 +270,38 @@ h1:hover {
     border: 3px solid var(--primary);
 }
 
-/* Footer & Responsiveness */
+/* ===
+Footer 
+=== */
+
 .site-footer {
     padding: 1.5rem;
-    color: var(--accent-dark);
+    color: var(--accent);
     font-size: 0.85rem;
-    border-top: 1px solid var(--line);
+    border-top: 2px solid var(--line);
 }
 
-@media (max-width: 600px) {
-    .hero-grid {
-        grid-template-columns: 1fr;
-        grid-template-areas:
-            "identity"
-            "photo"
-            "details";
-    }
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+}
 
-    .hero-photo {
-        max-width: 220px;
-    }
+.site-footer a {
+    color: var(--accent);
+    text-decoration: none;
+}
 
-    .social-links {
-        justify-content: flex-start;
-    }
+/* ====
+MISC
+==== */
+
+/* Icons */
+
+ion-icon {
+    vertical-align: text-bottom;
+    font-size: 1.2rem;
+}
+
+.social-link ion-icon {
+    margin-right: 0.35em;
 }
