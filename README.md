@@ -16,4 +16,4 @@ Kelas: PBP B
 
 ---
 
-AI declaration in [AI-DECLARATION.md]
+AI declaration in [AI-DECLARATION.md](AI-DECLARATION.md)
