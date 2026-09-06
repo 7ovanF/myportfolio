@@ -17,7 +17,7 @@
     --accent-dark: #223333;
     --paper: #1b1d1f;
     
-    --line: var(--accent-dark);
+    --line: var(--accent);
     --radius: 2px;
     
     --container-width: 1200px;
@@ -41,10 +41,12 @@ body {
     border: 1px solid var(--primary);
     border-radius: var(--radius);
     padding: 1.5rem 1.5rem;
+    width: calc(100% - 2 * 2em); /* AI used: https://www.perplexity.ai/search/8f3af345-91dd-434c-af28-bd0963c82292 */
 }
 
 .divider {
-    max-width: var(--container-width);
+    width: 66.67%;
+    max-width: calc(var(--container-width) * 2/3);
     margin: 0 auto;
     border: none;
     border-bottom: 1px solid var(--accent); /* invisible border to prevent it from moving on hover */
@@ -152,9 +154,17 @@ Header // Nav
 Hero 
 =====*/
 
-/* TODO: make this spacing responsive */
 .hero {
-    padding: 4.5rem 0 5rem;
+    height: 85vh;
+    display: flex;
+    align-items: center;
+}
+
+/* special case lmao */
+@media (max-width: 430px) {
+    .hero {
+        height: auto;
+    }
 }
 
 .hero-grid {
@@ -195,6 +205,15 @@ Hero
             "identity"
             "photo"
             "details";
+        text-align: center;
+    }
+
+    .hero-grid > * {
+        margin: .1em auto;
+    }
+    
+    .hero-details > * {
+        margin: .1em auto;
     }
 }
 
@@ -218,6 +237,8 @@ Hero
     display: block;
     gap: 2rem;
     margin-bottom: 1.5rem;
+    width: fit-content; /* to make centering consistent */
+    text-align: left;
 }
 
 .meta-row dt, .meta-row dd {
@@ -258,6 +279,12 @@ Hero
     flex-wrap: wrap;
 }
 
+@media (max-width: 600px) {
+    .social-links {
+        justify-content: center;
+    }
+}
+
 .social-link {
     display: inline-block;
     font-size: 0.85rem;
@@ -288,6 +315,13 @@ Hero
     z-index: 0;
 }
 
+@media (max-width: 600px) {
+    .photo-block {
+        top: .75rem;
+        left: .75rem;
+    }
+}
+
 .avatar {
     position: relative;
     z-index: 1;
@@ -308,7 +342,8 @@ Projects
     grid-template-columns: 1fr 1fr 1fr;
     /* justify-content: space-evenly; */
     column-rule: 1px solid var(--accent);
-    gap: 2em;
+    column-gap: 2em;
+    row-gap: 3em;
 }
 
 .project-card {
@@ -330,16 +365,16 @@ Projects
     }
 }
 
-
 .project-title {
     color: var(--primary);
+    font-size: 1.2rem;
     border-bottom: 1px solid var(--line);
 }
 
 .project-img {
     width: 100%;
     padding: .2em;
-    border: 1px solid var(--line);
+    border: 1px solid var(--accent);
     background-color: var(--accent-dark);
 }
 
@@ -369,10 +404,6 @@ Projects
     text-decoration: none;
 }
 
-.project-skill-btn {
-
-}
-
 /* ===
 Footer 
 === */
@@ -381,12 +412,19 @@ Footer
     padding: 1.5rem;
     color: var(--accent);
     font-size: 0.85rem;
-    border-top: 2px solid var(--line);
+    border-top: 1px solid var(--line);
 }
 
 .footer-content {
     display: flex;
     justify-content: space-between;
+    gap: .5em;
+}
+
+@media (max-width: 600px) {
+    .footer-content {
+        flex-direction: column;
+    }
 }
 
 .site-footer a {
