@@ -32,13 +32,16 @@
                     <h1>Jovan Finesta</h1>
                 </div>
                 <div class="hero-photo">
-                    <p>(i ahve no photo, have skewed tux for now)</p>
                     <div class="photo-block"></div>
                     <img class="avatar" src="/static/img/tux.png" alt="Photo of Jovan ">
                 </div>
                 <div class="hero-details">
-                    <h2 class="bio-header">> about me</h2>
-                    <p class="bio">A CS student at University of Indonesia. Interested in Linux systems, networking, security, a bit of self-hosting... I don't know what to self-host.</p>
+                    <h2 class="bio-title">> about me</h2>
+                    <p class="bio">
+                        A CS student at University of Indonesia.
+                        Interested in Linux systems, networking, security, a bit of self-hosting...
+                        I don't know what to self-host.
+                    </p>
                     <dl class="meta-list">
                         <div class="meta-row">
                             <dt>NPM</dt>
@@ -62,6 +65,99 @@
                             </ion-icon>jovanfinesta [at] protonmail [dot] com
                         </a>
                     </div>
+                </div>
+            </div>
+        </section>
+        <hr class="divider">
+        <section class="projects" id="projects">
+            <div class="container container-boxed">
+                <h2 class="section-title">> projects <span class="command-option">--featured</span></h2>
+                <!-- This layout is heavily inspired by https://thavlik.dev/ -->
+                <div class="project-cards">
+                    <article class="project-card">
+                        <h3 class="project-title">Small Homelab</h3>
+                        <img class="project-img" src="/static/img/projects/proxmox.png" alt="Image of proxmox dashboard">
+                        <div class="project-desc">
+                            <p>
+                                An Ideapad Z480 from around 2012 with a Gen 3 CPU and impressively
+                                8 gigs of DDR3... AND a GPU.
+                            </p>
+                            <p>
+                                Unfortunately, it is where the awesomeness ends; I have barely done
+                                anything with it. It runs Proxmox with some containers (particularly, an
+                                OPDS pdf library for my studies) and a few VMs intended to simulate 
+                                networking (such as a virtual LAN).
+                            </p>
+                            <p>
+                                Even with the option of setting up a VPN-only access, I'm still too 
+                                scared to expose it to the public internet. (but also I don't wanna
+                                simply use Tailscale for it)
+                            </p>
+                        </div>
+                        <div class="project-skills">
+                            <a href="" class="button project-skill-btn">docker</a>
+                            <a href="" class="button project-skill-btn">systemd-services</a>
+                            <a href="" class="button project-skill-btn">networking</a>
+                        </div>
+                    </article>
+                    <article class="project-card">
+                        <h3 class="project-title">
+                            Enterprise CRUD Web-app
+                        </h3>
+                        <img class="project-img" src="/static/img/projects/app_dashboard.png" alt="Image of web-app dashboard">
+                        <div class="project-desc">
+                            <p>
+                                I acquired a part-time job to maintain a web-app back in highschool.
+                            </p>
+                            <p>
+                                This app uses the CodeIgniter3 framework, front-end styled with
+                                Bootstrap, and uses a MySQL database.
+                            </p>
+                        </div>
+                        <div class="project-skills">
+                            <a href="" class="button project-skill-btn">html&css</a>
+                            <a href="" class="button project-skill-btn">bootstrap</a>
+                            <a href="" class="button project-skill-btn">javascript</a>
+                            <a href="" class="button project-skill-btn">php</a>
+                            <a href="" class="button project-skill-btn">codeigniter3</a>
+                            <a href="" class="button project-skill-btn">mysql(with-phpmyadmin-tho)</a>
+                        </div>
+                    </article>
+                    <article class="project-card">
+                        <h3 class="project-title">
+                            The VPS behind it
+                        </h3>
+                        <img class="project-img" src="/static/img/projects/vps_motd.png" alt="Image of VPS MOTD">
+                        <div class="project-desc">
+                            <p>
+                                I don't maintain the app anymore; I now mostly manage some aspects 
+                                of the deployment server.
+                            </p>
+                            <p>
+                                Said aspects include:
+                            </p>
+                            <ul>
+                                <li>configuring nginx</li>
+                                <li>managing TLS certificates (...with certbot)</li>
+                                <li>deploying Tailscale for VPN access</li>
+                                <li>deploying HSTS, because somehow a client's Safari browser 
+                                    defaulted to HTTP (rip passwords)
+                                </li>
+                                <li>general debugging</li>
+                                <li>ricing the MOTD</li>
+                            </ul>
+                            <p>
+                                ...while the rest were autoconfigured already.
+                            </p>
+                        </div>
+                        <div class="project-skills">
+                            <a href="" class="button project-skill-btn">nginx</a>
+                            <a href="" class="button project-skill-btn">server-administration</a>
+                            <a href="" class="button project-skill-btn">systemd-services</a>
+                            <a href="" class="button project-skill-btn">networking</a>
+                        </div>
+                    </article>
+
                 </div>
             </div>
         </section>
