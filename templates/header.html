@@ -1,0 +1,31 @@
+{# AKA navbar.html #}
+<header class="site-header">
+    <div class="header-tmux">
+        <!-- yes, the default config has the windows next to session name but that 
+             kinda breaks normal perception -->
+        <a href="{% url 'main:landing_page' %}" class="nav-label">[{{ display_name }}]<!--
+         --><span id="current-host"></span>
+        </a>
+        <nav>
+            <a href="{% url 'main:landing_page' %}" class="nav-active">0:profile</a> 
+            <a href="{% url 'main:projects' %}">1:projects</a>
+        </nav>
+    </div>
+</header>
+
+{# to populate the header #}
+<script>
+    window.onload = function() {
+        display_hostname();
+        set_activepage();
+    }
+    
+    function display_hostname() {
+        var current_host = window.location.hostname;
+        document.getElementById("current-host").innerHTML = '"' + current_host + '"';
+    }
+    
+    function set_activepage() {
+        
+    }
+</script>

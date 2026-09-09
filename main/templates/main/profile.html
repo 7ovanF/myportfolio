@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero" id="profile">
+    <div class="container">
+        <div class="hero-identity">
+            <p class="hero-kicker">{{ study_program_en }} @ Universitas Indonesia</p>
+            <h1>{{ full_name }}</h1>
+        </div>
+        <div class="hero-details">
+            <h2 class="section-title bio-title">About me</h2>
+            <p class="bio">
+                {% for line in bio %}
+                    {{ line }}
+                {% endfor %}
+            </p>
+            <dl class="meta-list">
+                <div class="meta-row">
+                    <dt>NPM</dt>
+                    <dd>{{ npm }}</dd>
+                </div>
+                <div class="meta-row">
+                    <dt>Program</dt>
+                    <dd>{{ study_program }}</dd>
+                </div>
+            </dl>
+            <div class="social-links">
+                {% for link in social_links %}
+                <a href="{{ link.url }}" class="social-link button">
+                    <ion-icon name="{{ link.icon_name }}"></ion-icon>{{ link.label }}
+                </a>
+                {% empty %}
+                This guy is literally unreachable huh
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+<hr class="divider">
+{# need to get around the base getting included twice #}
+{# include "main/projects.html" #}
+{% endblock %}

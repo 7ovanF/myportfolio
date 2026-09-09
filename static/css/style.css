@@ -25,9 +25,18 @@
 
 body {
     font-family: "Cousine", Roboto, Helvetica, Arial, -apple-system, serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
     color: var(--primary-text);
     background-color: var(--paper);
     line-height: 1.4;
+}
+
+main {
+/* content fills page so footer doesn't go up
+ https://www.perplexity.ai/search/0a9d2cc9-4646-4b09-a236-6a02aba34cf7 */
+    flex: 1;
 }
 
 .container {
