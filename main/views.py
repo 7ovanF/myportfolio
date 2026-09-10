@@ -43,7 +43,6 @@ projects_context = {
 
 def landing_page(request):
     context = {**base_context, **profile_context, **projects_context}
-    # context = {**context, "active_site": "profile" }
     return render(request, "main/profile.html", context)
 
 def projects(request):

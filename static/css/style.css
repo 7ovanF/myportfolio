@@ -347,6 +347,7 @@ Projects
     padding: .2em .4em;
     margin: .2em 0;
     font-size: .8rem;
+    text-transform: lowercase;
     text-decoration: none;
 }
 
