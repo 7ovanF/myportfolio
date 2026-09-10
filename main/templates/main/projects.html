@@ -1,41 +1,6 @@
 {% extends "base.html" %}
 
-{% load markdownify %}
 {% load static %}
 {% block content %}
-<section class="projects" id="projects">
-    <div class="container container-boxed">
-        <h2 class="section-title">projects <span class="command-option">--featured</span></h2>
-        <!-- This layout is heavily inspired by https://thavlik.dev/ -->
-        <div class="project-cards">
-            {% for project in project_list %}
-            <article class="project-card">
-                <h3 class="project-title">{{ project.title }}</h3>
-                {% if project.thumbnail %}
-                <img class="project-img" src="{{ MEDIA_URL }}{{ project.thumbnail }}" 
-                    alt="Image for the project {{ project.title }}">
-                {% else %} {# empty thing to maintain structure #}
-                <img>
-                {% endif %}
-                <div class="project-desc">
-                    {% if project.description %}
-                    {{ project.description|markdownify:"description" }}
-                    {% else %}
-                    No description was provided for this project.
-                    {% endif %}
-                </div>
-                {% if project.skills.first %} {# prevent separator from appearing if empty #}
-                <div class="project-skills">
-                    {% for skill in project.skills.all %}
-                        <a class="button project-skill-btn">{{ skill.title }}</a>
-                    {% endfor %}
-                </div>
-                {% endif %}
-            </article>
-            {% empty %}
-                <p>Oopsies, nothing interesting has happened in this guy's life...</p>
-            {% endfor %}
-        </div>
-    </div>
-</section>
+    {% include "main/_projects_section.html" %}
 {% endblock %}
