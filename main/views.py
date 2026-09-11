@@ -36,31 +36,27 @@ profile_context = {
     ],
 }
 
-projects_context = {
-    "project_list": Project.objects.all()
-}
-
-experience_context = {
-    "experience_list": Experience.objects.all()
-}
-
 def landing_page(request):
     context = {
             "active_page": "landing_page",
-            **base_context, **profile_context, **projects_context, **experience_context
+            **base_context, **profile_context,
+            "project_list": Project.objects.all(),
+            "experience_list": Experience.objects.all(),
         }
     return render(request, "main/profile.html", context)
 
 def projects(request):
     context = {
             "active_page": "projects",
-            **base_context, **projects_context
+            **base_context,
+            "project_list": Project.objects.all(),
         }
     return render(request, "main/projects.html", context)
 
 def experience(request):
     context = {
             "active_page": "experience",
-            **base_context, **experience_context
+            **base_context,
+            "experience_list": Experience.objects.all(),
         }
     return render(request, "main/experience.html", context)
