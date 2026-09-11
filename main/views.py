@@ -1,6 +1,6 @@
 from django.shortcuts import render
 
-from .models import Project, Skill
+from .models import Project, Experience
 
 # fix from https://www.perplexity.ai/search/5b78a4ab-e9fe-454e-ba49-ff7122f099a2
 base_context = {
@@ -40,11 +40,18 @@ projects_context = {
     "project_list": Project.objects.all()
 }
 
+experience_context = {
+    "experience_list": Experience.objects.all()
+}
 
 def landing_page(request):
-    context = {**base_context, **profile_context, **projects_context}
+    context = {**base_context, **profile_context, **projects_context, **experience_context}
     return render(request, "main/profile.html", context)
 
 def projects(request):
     context = {**base_context, **projects_context}
     return render(request, "main/projects.html", context)
+
+def experience(request):
+    context = {**base_context, **experience_context}
+    return render(request, "main/experience.html", context)

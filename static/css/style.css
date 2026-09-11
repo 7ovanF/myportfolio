@@ -351,6 +351,75 @@ Projects
     text-decoration: none;
 }
 
+/* =======
+Experience
+======= */
+
+.experience-cards {
+    display: flex;
+    flex-direction: column;
+}
+
+.experience-card {
+    padding: 1rem;
+}
+
+.experience-title {
+    color: var(--primary);
+}
+
+.experience-category {
+    color: var(--accent);
+    font-weight: 700;
+    text-transform: lowercase;
+}
+
+.experience-details {
+    font-size: 0.9rem;
+}
+
+.experience-details-section {
+    display: flex;
+}
+
+.experience-details dt {
+    text-align: right;
+    min-width: 12ch;
+}
+
+.experience-details dt::after {
+    content: ":";
+    margin-right: 1ch;
+}
+
+.experience-status-active {
+    color: greenyellow;
+}
+
+.experience-status-inactive {
+    color: red;
+}
+
+.experience-status-date {
+    color: var(--secondary);
+}
+
+.experience-card h2 {
+    margin: 0.5rem 0;
+    font-size: 1.25rem;
+}
+
+.experience-description,
+.empty-state {
+    color: var(--text-muted);
+}
+
+.experience-status {
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
 /* ===
 Footer 
 === */

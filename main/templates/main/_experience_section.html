@@ -1,0 +1,58 @@
+{# reusable experience section for any page. #}
+{% load markdownify %}
+<section class="experience" id="experience">
+    <div class="container container-boxed">
+        <h2 class="section-title">experience <span class="command-option">--featured</span></h2>
+
+        <div class="experience-cards">
+            {% for experience in experience_list %}
+                <article class="experience-card">
+                    <h3 class="experience-title">
+                        <span class="experience-bullet-point">&#x25CF;</span>
+                        <span class="experience-category">
+                            {{experience.title|truncatewords:2|slugify }}.{{ experience.get_category_display }} -
+                        </span>
+                        {{ experience.title }}
+                    </h3>
+                    <dl class="experience-details">
+                        <div class="experience-details-section">
+                            <dt>Docs</dt>
+                            <dd>{{ experience.description|markdownify:"description" }}</dd>
+                        </div>
+
+                        {# the django docs is very convenient, there are millions of template filters #}
+                        <div class="experience-details-section">
+                            <dt>Active</dt>
+                            <dd>
+                                {% if experience.is_ongoing %}
+                                    <span class="experience-status-active">active (running)</span>
+                                    since <span class="experience-status-date">
+                                        {{ experience.started_at|date:"D, d M Y" }}</span>;
+
+                                    <span class="experience-status-runtime">
+                                        {{ experience.started_at|timesince }} ago
+                                    </span>
+                                {% else %}
+                                    <span class="experience-status-inactive">inactive (dead)</span>
+                                    from <span class="experience-status-date">
+                                        {{ experience.started_at|date:"D, d M Y" }}
+                                    </span>
+                                    until <span class="experience-status-date">
+                                        {{ experience.ended_at|date:"D, d M Y" }}</span>;
+
+                                    <span class="experience-status-runtime">
+                                        for {{experience.started_at|timesince:experience.ended_at }}
+                                    </span>
+                                {% endif %}
+                            </dd>
+                        </div>
+                    </dl>
+                </article>
+            {% empty %}
+                <p class="empty-state">
+                    You could say this guy is... inexperienced
+                </p>
+            {% endfor %}
+        </div>
+    </div>
+</section>

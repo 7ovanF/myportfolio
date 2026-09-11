@@ -24,7 +24,7 @@
                 {% if project.skills.first %} {# prevent separator from appearing if empty #}
                 <div class="project-skills">
                     {% for skill in project.skills.all %}
-                        <a class="button project-skill-btn">{{ skill.title }}</a>
+                        <a class="button project-skill-btn">{{ skill.title|slugify }}</a>
                     {% endfor %}
                 </div>
                 {% endif %}
