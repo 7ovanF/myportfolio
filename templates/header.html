@@ -7,9 +7,15 @@
          --><span id="current-host"></span>
         </a>
         <nav>
-            <a href="{% url 'main:landing_page' %}" class="nav-active">0:profile</a> 
-            <a href="{% url 'main:projects' %}">1:projects</a>
-            <a href="{% url 'main:experience' %}">2:experience</a>
+            <a href="{% url 'main:landing_page' %}"
+               {% if active_page == 'landing_page' %}class="nav-active"{% endif %}
+            >0:profile</a>
+            <a href="{% url 'main:projects' %}"
+               {% if active_page == 'projects' %}class="nav-active"{% endif %}
+            >1:projects</a>
+            <a href="{% url 'main:experience' %}"
+               {% if active_page == 'experience' %}class="nav-active"{% endif %}
+            >2:experience</a>
         </nav>
     </div>
 </header>
@@ -18,16 +24,10 @@
 <script>
     window.onload = function() {
         display_hostname();
-        set_activepage();
     }
     
     function display_hostname() {
         var current_host = window.location.hostname;
         document.getElementById("current-host").innerHTML = '"' + current_host + '"';
-    }
-    
-    // forgot TODO
-    function set_activepage() {
-        
     }
 </script>

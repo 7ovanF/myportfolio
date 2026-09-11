@@ -45,13 +45,22 @@ experience_context = {
 }
 
 def landing_page(request):
-    context = {**base_context, **profile_context, **projects_context, **experience_context}
+    context = {
+            "active_page": "landing_page",
+            **base_context, **profile_context, **projects_context, **experience_context
+        }
     return render(request, "main/profile.html", context)
 
 def projects(request):
-    context = {**base_context, **projects_context}
+    context = {
+            "active_page": "projects",
+            **base_context, **projects_context
+        }
     return render(request, "main/projects.html", context)
 
 def experience(request):
-    context = {**base_context, **experience_context}
+    context = {
+            "active_page": "experience",
+            **base_context, **experience_context
+        }
     return render(request, "main/experience.html", context)

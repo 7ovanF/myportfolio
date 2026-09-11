@@ -161,11 +161,12 @@ Header // Nav
     padding: 0 .3rem;
     text-decoration: none;
     color: var(--paper);
-    transition: background-color 0.1s ease;
+    transition: color 0.1s ease;
 }
 
 .site-header a:hover {
-    background-color: var(--secondary);
+    color: var(--secondary);
+    text-decoration: underline;
 }
 
 .site-header a.nav-active::after {
