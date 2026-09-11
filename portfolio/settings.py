@@ -39,6 +39,7 @@ else:
     DEBUG = True
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "jovan-finesta-myportfolio.pws.cs.ui.ac.id"]
+CSRF_TRUSTED_ORIGINS = ["localhost", "127.0.0.1", "jovan-finesta-myportfolio.pws.cs.ui.ac.id"]
 
 
 
