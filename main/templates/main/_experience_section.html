@@ -10,7 +10,7 @@
                     <h3 class="experience-title">
                         <span class="experience-bullet-point">&#x25CF;</span>
                         <span class="experience-category">
-                            {{experience.title|truncatewords:2|slugify }}.{{ experience.get_category_display }} -
+                            {{experience.title|truncatewords:2|slugify }}.{{ experience.category|slugify }} -
                         </span>
                         {{ experience.title }}
                     </h3>
