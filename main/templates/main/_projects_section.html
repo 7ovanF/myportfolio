@@ -9,7 +9,7 @@
             <article class="project-card">
                 <h3 class="project-title">{{ project.title }}</h3>
                 {% if project.thumbnail %}
-                <img class="project-img" src="{{ MEDIA_URL }}{{ project.thumbnail }}" 
+                <img class="project-img" src="{{ project.thumbnail }}" 
                     alt="Image for the project {{ project.title }}">
                 {% else %} {# empty thing to maintain structure #}
                 <img>
