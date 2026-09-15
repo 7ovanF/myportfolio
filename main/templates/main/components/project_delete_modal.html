@@ -1,0 +1,40 @@
+<p class="experience-status">
+    <button type="button"
+            class="button button-danger project-delete-button"
+            popovertarget="delete-project-{{ project.id }}"
+            aria-label="Delete {{ project.title }}"
+            title="Delete Project">
+        Delete Project
+    </button>
+</p>
+<div id="delete-project-{{ project.id }}"
+     class="project-delete-modal"
+     popover="auto"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="delete-project-title-{{ project.id }}">
+    <button type="button"
+            class="project-delete-modal__backdrop"
+            popovertarget="delete-project-{{ project.id }}"
+            popovertargetaction="hide"
+            aria-label="Tutup konfirmasi hapus"></button>
+    <div class="project-delete-modal__content">
+        <button type="button"
+                class="project-delete-modal__close"
+                popovertarget="delete-project-{{ project.id }}"
+                popovertargetaction="hide"
+                aria-label="Tutup konfirmasi hapus">×</button>
+        <h2 id="delete-project-title-{{ project.id }}">Delete Project "{{ project.title }}"?</h2>
+        <div class="project-delete-modal__actions">
+            <form method="post" action="{% url 'main:delete_project' project.id %}">
+                {% csrf_token %}
+                <button type="submit" class="button button-danger">Yea</button>
+            </form>
+            <!-- Who the hell thought a cancel button at the left side is a good idea -->
+            <button type="button"
+                    class="button button-secondary"
+                    popovertarget="delete-project-{{ project.id }}"
+                    popovertargetaction="hide">Cancel</button>
+        </div>
+    </div>
+</div>

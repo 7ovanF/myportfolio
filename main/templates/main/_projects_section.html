@@ -2,7 +2,27 @@
 {% load markdownify %}
 <section class="projects" id="projects">
     <div class="container container-boxed">
-        <h2 class="section-title">projects <span class="command-option">--featured</span></h2>
+        <div class="project-header">
+            <h2 class="section-title">projects <span class="command-option">--featured</span></h2>
+            <a href="{% url 'main:create_project' %}"
+               class="button project-add-button">
+                <span aria-hidden="true">+</span>
+                Add Project
+            </a>
+        </div>
+        <p>Yes, these forms are free to use for now. Feel free to mess the site up</p>
+        <form method="get"
+              action="{% url 'main:projects' %}"
+              class="project-search">
+            <input type="search"
+                   name="title"
+                   value="{{ title_query }}"
+                   placeholder="Query..."
+                   class="project-search__input"
+                   aria-label="Query...">
+            <button type="submit" class="button">Search</button>
+        </form>
+
         <!-- This layout is heavily inspired by https://thavlik.dev/ -->
         <div class="project-cards">
             {% for project in project_list %}
@@ -27,10 +47,11 @@
                         <a class="button project-skill-btn">{{ skill.title|slugify }}</a>
                     {% endfor %}
                 </div>
+                {% include "main/components/project_delete_modal.html" with project=project %}
                 {% endif %}
             </article>
             {% empty %}
-                <p>Oopsies, nothing interesting has happened in this guy's life...</p>
+                <p>Nothing's found...</p>
             {% endfor %}
         </div>
     </div>

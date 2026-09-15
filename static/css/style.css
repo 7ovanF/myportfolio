@@ -108,8 +108,18 @@ h1:hover {
     border-radius: var(--radius);
     padding: 0.5rem 1.1rem;
     text-decoration: none;
+    text-align: center;
     color: var(--primary);
+    background-color: var(--paper);
     transition: background-color 0.1s ease;
+}
+
+button.button {
+    /* just resetting janky attributes */
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    cursor: pointer;
 }
 
 .button:hover {
@@ -117,6 +127,61 @@ h1:hover {
     background-color: var(--primary);
 }
 
+.button-secondary {
+    color: var(--secondary);
+    border-color: var(--secondary);
+}
+
+.button-secondary:hover {
+    color: var(--paper);
+    background-color: var(--secondary);
+}
+
+.button-danger {
+    border-color: #b42318;
+    color: #b42318;
+}
+
+.button-danger:hover {
+    background-color: #b42318;
+    color: var(--paper);
+}
+
+
+
+/* Form sections */
+input,
+textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.7rem;
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+    font: inherit;
+    transition:
+        border-color 0.2s ease,
+        outline-color 0.2s ease;
+    background-color: var(--paper);
+    color: var(--primary-text);
+}
+
+input:focus,
+textarea:focus {
+    outline: 2px solid var(--accent);
+    border-color: var(--accent);
+}
+
+select {
+    display: block;
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    font-family: inherit;
+    line-height: 1.1;
+
+    background-color: var(--paper);
+    border-radius: var(--radius);
+    cursor: pointer;
+}
 
 /* ==========
 Header // Nav
@@ -350,6 +415,121 @@ Projects
     font-size: .8rem;
     text-transform: lowercase;
     text-decoration: none;
+}
+
+.project-header {
+    display: flex;
+}
+
+/* === Project Forms === */
+
+/* Search bar */
+.project-add-button {
+    margin-left: auto;
+    height: fit-content;
+}
+
+.project-search {
+    display: flex;
+    gap: .5rem;
+    margin-bottom: 1rem;
+}
+
+/* Input form */
+.project-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+
+.form-error {
+    color: #b42318;
+    font-size: 0.85rem;
+    margin-top: 0.35rem;
+}
+
+.choices * {
+    background-color: var(--paper) !important; /* stinky workaround, would change if i had time */
+}
+
+.choices .choices__inner {
+    border: 1px solid var(--accent);
+}
+
+/* Delete modal */
+.project-delete-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 1rem;
+    border: 0;
+    background: transparent;
+    z-index: 10;
+    align-items: center;
+    justify-content: center;
+}
+
+.project-delete-modal:popover-open {
+    display: flex;
+}
+
+.project-delete-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    padding: 0;
+    background: rgba(28, 25, 23, 0.58);
+    cursor: default;
+}
+
+.project-delete-modal__content {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 480px);
+    padding: 1.5rem;
+    background: var(--paper);
+    border: 1px solid var(--primary);
+    border-radius: var(--radius);
+    box-shadow: 0 1rem 3rem rgba(28, 25, 23, 0.22);
+}
+
+.project-delete-modal__content h2 {
+    margin: 0 0 0.75rem;
+    font-size: 1.5rem;
+    color: var(--primary-text);
+}
+
+.project-delete-modal__close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    font-size: 1.8rem;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--primary-text);
+}
+
+.project-delete-modal__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.project-delete-button {
+    display: block;
+    margin-left: auto;
 }
 
 /* =======

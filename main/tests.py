@@ -88,7 +88,7 @@ class MainTest(TestCase):
         Project.objects.all().delete()
         response = self.client.get(reverse("main:projects"))
 
-        self.assertContains(response, "Oopsies, nothing interesting has happened in this guy's life...")
+        self.assertContains(response, "Nothing")
 
     def test_empty_description_project_page(self):
         self.project.description = ""
@@ -96,8 +96,33 @@ class MainTest(TestCase):
         response = self.client.get(reverse("main:projects"))
 
         self.assertContains(response, "No description was provided for this project.")
+        
+    # === Project (APIs) ===
+    def test_get_projects_json(self):
+        response = self.client.get(reverse("main:get_projects_json"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()[0]["fields"]["title"], self.project.title)
+
+    def test_create_project(self):
+        response = self.client.post(reverse("main:create_project"), {
+            "title": "Created Project",
+            "description": "Created through the form.",
+            "skills": [self.skill.pk],
+        })
+
+        self.assertRedirects(response, reverse("main:projects"))
+        self.assertTrue(Project.objects.filter(title="Created Project").exists())
+
+    def test_delete_project(self):
+        response = self.client.post(
+            reverse("main:delete_project", args=[self.project.pk])
+        )
+
+        self.assertRedirects(response, reverse("main:projects"))
+        self.assertFalse(Project.objects.filter(pk=self.project.pk).exists())
                     
-    # === Project ===
+    # === Skill ===
     def test_skill_model(self):
         self.assertEqual(str(self.skill), "Unit Testing")
         self.assertEqual(self.skill.proficiency, "advanced")
