@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 
+{% block title %}
+    <title>{{ display_name }} - Projects</title>
+{% endblock %}
 {% load static %}
 {% block content %}
     {% include "main/_projects_section.html" %}
