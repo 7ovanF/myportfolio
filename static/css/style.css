@@ -148,8 +148,43 @@ button.button {
 }
 
 
+/* === Forms === */
 
-/* Form sections */
+/* Search bar */
+.project-add-button {
+    margin-left: auto;
+    height: fit-content;
+}
+
+.project-search {
+    display: flex;
+    gap: .5rem;
+    margin-bottom: 1rem;
+}
+
+/* Input form */
+.input-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+
+.form-error {
+    color: #b42318;
+    font-size: 0.85rem;
+    margin-top: 0.35rem;
+}
+
+.choices * {
+    background-color: var(--paper) !important; /* stinky workaround, would change if i had time */
+}
+
+.choices .choices__inner {
+    border: 1px solid var(--accent);
+}
+
+/* inputs */
 input,
 textarea {
     width: 100%;
@@ -421,41 +456,6 @@ Projects
     display: flex;
 }
 
-/* === Project Forms === */
-
-/* Search bar */
-.project-add-button {
-    margin-left: auto;
-    height: fit-content;
-}
-
-.project-search {
-    display: flex;
-    gap: .5rem;
-    margin-bottom: 1rem;
-}
-
-/* Input form */
-.project-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-
-.form-error {
-    color: #b42318;
-    font-size: 0.85rem;
-    margin-top: 0.35rem;
-}
-
-.choices * {
-    background-color: var(--paper) !important; /* stinky workaround, would change if i had time */
-}
-
-.choices .choices__inner {
-    border: 1px solid var(--accent);
-}
 
 /* Delete modal */
 .project-delete-modal {
