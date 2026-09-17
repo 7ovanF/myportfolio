@@ -1,4 +1,4 @@
-from django.forms import ModelForm, TextInput, Textarea, URLInput
+from django.forms import ModelForm, TextInput, Textarea, URLInput, SelectMultiple
 
 from main.models import Project
 
@@ -41,12 +41,12 @@ class ProjectForm(ModelForm):
             "description": Textarea(
                 attrs={
                     "placeholder": "Format in markdown!",
-                    "rows": 5, # todo
+                    "rows": 5,
                 }
             ),
-            # "tech_stack": TextInput(
-            #     attrs={
-            #         "placeholder": "Django, Python, HTML, CSS",
-            #     }
-            # ),
+            "skills": SelectMultiple(
+                attrs={
+                    "placeholder": "Django",
+                }
+            ),
         }

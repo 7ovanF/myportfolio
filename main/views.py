@@ -41,11 +41,12 @@ profile_context = {
 }
 
 def landing_page(request):
-    json_response = get_projects_json(request)
+    json_projects = get_projects_json(request)
     projects = serializers.deserialize(
             "json",
-            json_response.content.decode("utf-8"),
+            json_projects.content.decode("utf-8"),
         )
+    projects = [ project.object for project in projects ]
 
     context = {
             "active_page": "landing_page",
@@ -56,10 +57,10 @@ def landing_page(request):
     return render(request, "main/profile.html", context)
 
 def projects(request):
-    json_response = get_projects_json(request)
+    json_projects = get_projects_json(request)
     projects = serializers.deserialize(
             "json",
-            json_response.content.decode("utf-8"),
+            json_projects.content.decode("utf-8"),
         )
     projects = [ project.object for project in projects ]
 
