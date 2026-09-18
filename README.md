@@ -67,6 +67,26 @@ python manage.py runserver
 3. `makemigrations` membuat kode Python yang menggunakan implementasi Django yang berfungsi untuk mengubah schema database dan menaruh kode tersebut di folder pada masing-masing app yang terkait. `migrate` dilakukan untuk mengeksekusi kode tersebut sehingga benar-benar diaplikasikan pada database; migrasi melalui `migrate` harus dilakukan dengan file-file migrasi yang dibuat oleh `makemigrations`.
 
     Semua perubahan pada schema database (melalui perubahan `models.py`) memerlukan migrasi ulang dengan `makemigrations` dan `migrate`. Contohnya, menambahkan model baru atau menambah/mengubah field pada model yang sudah ada.
+    
+## Tugas 3
+#### Jelaskan mengapa kita menggunakan ModelForm pada Django alih-alih membuat form HTML secara manual. Selain itu, jelaskan pula mengapa kita diwajibkan menambahkan {% csrf_token %} pada form tersebut!
+1. `ModelForm` sediaan Django sudah memberikan semuanya bagi user. Ia men-generate struktur HTML secara otomatis (yang dapat dimodifikasi dengan mendefinisikan ulang nested classnya `Meta`) dan juga meng-handle logika penerimaan dan pemrosesan POST request serta penyimpanan data itu sendiri.
+
+    `csrf_token` menambahkan sebuah token yang digunakan untuk melakukan prevensi serangan CSRF, yaitu serangan di mana pihak jahat melakukan sebuah request ke server website melalui kredensial dari seorang user yang sudah terautentikasi. Dengan membandingkan token yang disimpan di server dengan yang dikirim bersama request client, server dapat memvalidasi bahwa request tersebut datang dari session asli, bukan diinstigasi oleh pihak lain. Django secara otomatis meng-include modul yang mewajibkan penggunaan token CSRF untuk form. 
+
+#### Pada Tutorial 03, kita membahas format data JSON dan XML. Mengapa JSON lebih disukai dalam pengembangan aplikasi web modern dibandingkan XML?
+2. JSON memiliki struktur yang sederhana, sehingga lebih mudah dibaca maupun disusun. JavaScript, sebagai salah satu penerima utama format JSON, dapat membaca format tersebut dengan lebih mudah. XML memiliki berbagai fitur yang lebih dibandingkan JSON, seperti spesifikasi struktur (schema) dan namespacing agar berbagai service bisa membaca informasi tertentu pada dokumen XML yang sama. Biasanya JSON cukup saja untuk aplikasi non-kritikal. Referensi: https://stackoverflow.com/questions/5615352/xml-and-json-advantages-and-disadvantages
+
+#### Jelaskan alur yang terjadi saat kamu menggunakan fungsi view untuk mengembalikan data portofoliomu dalam bentuk JSON. Mengapa kita perlu melakukan proses serialization pada model Django sebelum datanya dikembalikan?
+3. Alur fungsi view:
+    1. Request client sampai, URL di-resolve, fungsi view terpanggil.
+    2. Fungsi view membutuhkan konteks berupa data untuk dimasukkan ke template. View memanggil fungsi API yang me-return data.
+    3. Fungsi API GET mengambil data dari database (`ModelName.objects.all()` dan sebagainya).
+    4. Data tersebut di-serialize (yaitu dikonversi ke format yang bisa ditransmisi), yaitu ke bentuk JSON. Hasil serialisasi dikembalikan ke fungsi view.
+    5. Fungsi view melakukan deserialization dari format JSON ke bentuk yang bisa dibaca Python.
+    6. Fungsi view mengirim context ke template renderer dan mengirim hasil HTML ke client.
+    
+    Serialization diperlukan karena kedua sisi dalam request, yakni client dan server, belum tentu memiliki format yang sama dalam membaca data. Untuk mengirimkannya, server harus mengonversi ke bentuk yang universal dan mudah ditransmisi (misalnya JSON). Setelah diterima, data dapat di-deserialize oleh client ke bentuk yang dikenali olehnya tanpa memedulikan format awal yang dipakai server.
 
 ---
 
