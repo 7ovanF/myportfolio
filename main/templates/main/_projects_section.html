@@ -2,7 +2,7 @@
 {% load markdownify %}
 <section class="projects" id="projects">
     <div class="container container-boxed">
-        <div class="project-header">
+        <div class="section-header">
             <h2 class="section-title">projects <span class="command-option">--featured</span></h2>
             {% url "main:create_project" as create_form_url %}
             {% include "main/components/_form_add_button.html" with label="Add Project" url=create_form_url%}
