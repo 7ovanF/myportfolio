@@ -16,6 +16,7 @@
     --accent: #448888;
     --accent-dark: #223333;
     --paper: #1b1d1f;
+    --paper-light: #1b1d33;
     
     --line: var(--accent);
     --radius: 2px;
@@ -29,7 +30,8 @@ body {
     flex-direction: column;
     min-height: 100vh;
     color: var(--primary-text);
-    background-color: var(--paper);
+    background: linear-gradient(to bottom, var(--paper) 0%, var(--paper-light) 100%);
+    background-attachment: fixed;
     line-height: 1.4;
 }
 
@@ -47,6 +49,7 @@ main {
 
 .container-boxed {
     background-color: var(--paper);
+    box-shadow: 3px 3px var(--primary);
     border: 1px solid var(--primary);
     border-radius: var(--radius);
     padding: 1.5rem 1.5rem;
@@ -78,6 +81,7 @@ h1 {
     border: 1px solid #00000000; /* invisible border to prevent it from moving on hover */
     border-radius: var(--radius);
     color: var(--primary);
+    text-shadow: 0px 0px 3px var(--primary);
     transition: background-color 0.1s ease;
 }
 
@@ -318,6 +322,7 @@ Header // Nav
     justify-content: space-between;
     align-items: center;
     max-width: var(--container-width);
+    box-shadow: 1px 3px var(--accent);
     margin: 0 auto;
     font-size: 1rem;
     background-color: var(--primary);
@@ -327,6 +332,7 @@ Header // Nav
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-weight: 700;
 }
 
 .site-header nav {
@@ -606,7 +612,7 @@ Footer
     padding: 1.5rem;
     color: var(--accent);
     font-size: 0.85rem;
-    border-top: 1px solid var(--line);
+    border-top: 1px solid var(--accent-dark);
 }
 
 .footer-content {
