@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.contrib import messages
 
 from .models import Project, Experience
-from .forms import ProjectForm
+from .forms import ProjectForm, ExperienceForm
 
 # fix from https://www.perplexity.ai/search/5b78a4ab-e9fe-454e-ba49-ff7122f099a2
 base_context = {
@@ -56,6 +56,9 @@ def landing_page(request):
         }
     return render(request, "main/profile.html", context)
 
+# ========
+# PROJECTS 
+# ========
 def projects(request):
     json_projects = get_projects_json(request)
     projects = serializers.deserialize(
@@ -71,16 +74,7 @@ def projects(request):
         }
     return render(request, "main/projects.html", context)
 
-
-def experience(request):
-    context = {
-            "active_page": "experience",
-            **base_context,
-            "experience_list": Experience.objects.all(),
-        }
-    return render(request, "main/experience.html", context)
-
-# === APIs ===
+# APIs
 def get_projects_json(request):
     title_query = request.GET.get("title", "").strip()
     projects = Project.objects.all()
@@ -91,6 +85,7 @@ def get_projects_json(request):
     projects_json = serializers.serialize("json", projects)
     return HttpResponse(projects_json, content_type="application/json")
 
+# Forms 
 def delete_project(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
@@ -101,7 +96,6 @@ def delete_project(request, project_id):
 
     return redirect("main:projects")
 
-# === Forms ===
 def create_project(request):
     form = ProjectForm(request.POST or None)
 
@@ -115,3 +109,58 @@ def create_project(request):
         "form": form,
     }
     return render(request, "main/projects_form.html", context)
+
+# ==========
+# EXPERIENCE
+# ==========
+# Refer to experience (plural) as experience*s* internally
+def experience(request):
+    json_experiences = get_experiences_json(request)
+    experiences = serializers.deserialize(
+            "json",
+            json_experiences.content.decode("utf-8"),
+        )
+    experiences = [ experience.object for experience in experiences ]
+
+    context = {
+            "active_page": "experience",
+            **base_context,
+            "experience_list": experiences,
+        }
+    return render(request, "main/experience.html", context)
+
+# APIs
+def get_experiences_json(request):
+    title_query = request.GET.get("title", "").strip()
+    experiences = Experience.objects.all()
+
+    if title_query:
+        experiences = experiences.filter(title__icontains=title_query)
+
+    experiences_json = serializers.serialize("json", experiences)
+    return HttpResponse(experiences_json, content_type="application/json")
+
+# Forms 
+def create_experience(request):
+    form = ExperienceForm(request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Experience baru berhasil ditambahkan!")
+        return redirect("main:experience")
+
+    context = {
+        **base_context,
+        "form": form,
+    }
+    return render(request, "main/experience_form.html", context)
+
+def delete_experience(request, experience_id):
+    experience = get_object_or_404(Experience, pk=experience_id)
+
+    if request.method == "POST":
+        experience.delete()
+        messages.success(request, "Experience berhasil dihapus!")
+        return redirect("main:experience")
+
+    return redirect("main:experience")

@@ -1,6 +1,6 @@
-from django.forms import ModelForm, TextInput, Textarea, URLInput, SelectMultiple
+from django.forms import ModelForm, TextInput, Textarea, URLInput, SelectMultiple, DateInput
 
-from main.models import Project
+from main.models import Project, Experience
 
 class ProjectForm(ModelForm):
     class Meta:
@@ -49,4 +49,55 @@ class ProjectForm(ModelForm):
                     "placeholder": "Django",
                 }
             ),
+        }
+
+class ExperienceForm(ModelForm):
+    class Meta:
+        model = Experience
+        fields = [
+            "title",
+            "description",
+            "category",
+            "thumbnail",
+            "started_at",
+            "ended_at",
+        ]
+
+        labels = {
+            "title": "Experience Name",
+            "description": "Experience Description",
+            "category": "Type of experience",
+            "thumbnail": "Thumbnail URL",
+            "started_at": "Start date",
+            "ended_at": "End date",
+        }
+
+        widgets = {
+            "title": TextInput(
+                attrs={
+                    "placeholder": "Sysadmin",
+                    "maxlength": 255,
+                }
+            ),
+            "description": Textarea(
+                attrs={
+                    "placeholder": "Format in markdown!",
+                    "rows": 5,
+                }
+            ),
+            "thumbnail": URLInput(
+                attrs={
+                    "placeholder": "https://drive.google.com/thumbnail?id=...&sz=w1000 (16:9 pls)",
+                }
+            ),
+            "started_at": DateInput(
+                attrs={
+                    "placeholder": "2026-06-14"
+                }
+            ),
+            "ended_at": DateInput(
+                attrs={
+                    "placeholder": "2028-06-14 (blank for unfinished)"
+                }
+            )
         }

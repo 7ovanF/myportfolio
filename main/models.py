@@ -41,8 +41,8 @@ class Experience(models.Model):
     description = models.TextField(help_text="Write in Markdown!")
     category = models.CharField(max_length=20, choices=EXPERIENCE_CHOICES, default='full-time')
     thumbnail = models.URLField(blank=True, null=True, help_text="16:9 pls")
-    started_at = models.DateTimeField()
-    ended_at = models.DateTimeField(blank=True, null=True)
+    started_at = models.DateField()
+    ended_at = models.DateField(blank=True, null=True)
 
     def __str__(self):
         return self.title
