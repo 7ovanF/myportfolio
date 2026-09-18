@@ -104,6 +104,35 @@ class MainTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()[0]["fields"]["title"], self.project.title)
 
+    # === Project search ===
+    def test_search_projects_by_title(self):
+        other_project = Project.objects.create(
+            title="Unrelated Project",
+            description="This should not be returned by the search.",
+        )
+
+        response = self.client.get(reverse("main:projects"), {"title": "unit"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.project.title)
+        self.assertNotContains(response, other_project.title)
+
+    def test_search_projects_with_no_matches(self):
+        response = self.client.get(reverse("main:projects"), {"title": "does not exist"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Nothing's found...")
+        self.assertNotContains(response, self.project.title)
+
+    def test_clearing_project_search_returns_all_projects(self):
+        other_project = Project.objects.create(title="Another Project")
+
+        response = self.client.get(reverse("main:projects"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.project.title)
+        self.assertContains(response, other_project.title)
+
     def test_create_project(self):
         response = self.client.post(reverse("main:create_project"), {
             "title": "Created Project",
@@ -114,6 +143,17 @@ class MainTest(TestCase):
         self.assertRedirects(response, reverse("main:projects"))
         self.assertTrue(Project.objects.filter(title="Created Project").exists())
 
+    def test_create_project_requires_a_title(self):
+        project_count = Project.objects.count()
+
+        response = self.client.post(reverse("main:create_project"), {
+            "description": "A project without a title.",
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFormError(response.context["form"], "title", "This field is required.")
+        self.assertEqual(Project.objects.count(), project_count)
+
     def test_delete_project(self):
         response = self.client.post(
             reverse("main:delete_project", args=[self.project.pk])
@@ -121,6 +161,14 @@ class MainTest(TestCase):
 
         self.assertRedirects(response, reverse("main:projects"))
         self.assertFalse(Project.objects.filter(pk=self.project.pk).exists())
+
+    def test_get_delete_project_does_not_delete(self):
+        response = self.client.get(
+            reverse("main:delete_project", args=[self.project.pk])
+        )
+
+        self.assertRedirects(response, reverse("main:projects"))
+        self.assertTrue(Project.objects.filter(pk=self.project.pk).exists())
                     
     # === Skill ===
     def test_skill_model(self):
