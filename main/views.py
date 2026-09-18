@@ -86,16 +86,6 @@ def get_projects_json(request):
     return HttpResponse(projects_json, content_type="application/json")
 
 # Forms 
-def delete_project(request, project_id):
-    project = get_object_or_404(Project, pk=project_id)
-
-    if request.method == "POST":
-        project.delete()
-        messages.success(request, "Project berhasil dihapus!")
-        return redirect("main:projects")
-
-    return redirect("main:projects")
-
 def create_project(request):
     form = ProjectForm(request.POST or None)
 
@@ -108,7 +98,33 @@ def create_project(request):
         **base_context,
         "form": form,
     }
-    return render(request, "main/projects_form.html", context)
+    return render(request, "main/projects_add_form.html", context)
+
+def update_project(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    form = ProjectForm(request.POST or None, instance=project)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Successfully updated project!")
+        return redirect("main:projects")
+
+    context = {
+        **base_context,
+        "project": project,
+        "form": form,
+    }
+    return render(request, "main/projects_edit_form.html", context)
+
+def delete_project(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    if request.method == "POST":
+        project.delete()
+        messages.success(request, "Project berhasil dihapus!")
+        return redirect("main:projects")
+
+    return redirect("main:projects")
 
 # ==========
 # EXPERIENCE
@@ -153,7 +169,24 @@ def create_experience(request):
         **base_context,
         "form": form,
     }
-    return render(request, "main/experience_form.html", context)
+    return render(request, "main/experience_add_form.html", context)
+
+def update_experience(request, experience_id):
+    experience = get_object_or_404(Experience, pk=experience_id)
+
+    form = ExperienceForm(request.POST or None, instance=experience)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Successfully updated experience!")
+        return redirect("main:experience")
+
+    context = {
+        **base_context,
+        "experience": experience,
+        "form": form,
+    }
+    return render(request, "main/experience_edit_form.html", context)
+
 
 def delete_experience(request, experience_id):
     experience = get_object_or_404(Experience, pk=experience_id)

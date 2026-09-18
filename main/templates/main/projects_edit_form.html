@@ -3,10 +3,10 @@
     <title>{{ display_name }} - Projects Form</title>
 {% endblock %}
 {% block section_title %}
-    <h2 class="section-title">projects <span class="command-option">add</span></h2>
+    <h2 class="section-title">projects <span class="command-option">update {{ project.title }} --interactive</span></h2>
 {% endblock %}
 {% block form_action %}
-    {% url 'main:create_project' %}
+    {% url 'main:update_project' project.id %}
 {% endblock %}
 {% block previous_page %}
     {% url 'main:projects' %}

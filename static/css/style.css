@@ -222,6 +222,14 @@ select {
     cursor: pointer;
 }
 
+.form-modify-entry-buttons {
+    display: flex;
+    gap: .5rem;
+    margin-top: .5rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
 /* Delete modal & button */
 .form-delete-modal {
     display: none;
@@ -291,12 +299,6 @@ select {
     gap: 0.75rem;
     margin-top: 1.5rem;
 }
-
-.form-delete-button {
-    display: block;
-    margin-left: auto;
-}
-
 
 
 /* ==========
@@ -594,12 +596,6 @@ Experience
 .experience-description,
 .empty-state {
     color: var(--text-muted);
-}
-
-.experience-status {
-    margin-top: 1rem;
-    font-size: 0.85rem;
-    font-weight: 600;
 }
 
 /* ===

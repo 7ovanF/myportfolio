@@ -1,0 +1,13 @@
+{% extends "main/base_form.html" %}
+{% block title %}
+    <title>{{ display_name }} - Experience Form</title>
+{% endblock %}
+{% block section_title %}
+    <h2 class="section-title">experience <span class="command-option">update "{{ experience.title }}" --interactive</span></h2>
+{% endblock %}
+{% block form_action %}
+    {% url 'main:update_experience' experience.id %}
+{% endblock %}
+{% block previous_page %}
+    {% url 'main:experience' %}
+{% endblock %}

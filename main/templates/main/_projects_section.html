@@ -35,8 +35,12 @@
                     {% endfor %}
                 </div>
                 {% endif %}
-                {% url 'main:delete_project' project.id as delete_form_action%}
-                {% include "main/components/_form_delete_modal.html" with label="Delete project" target_id=project.id target_title=project.title form_action=delete_form_action %}
+                <div class="form-modify-entry-buttons">
+                    {% url "main:update_project" project.id as update_form_url %}
+                    {% include "main/components/_form_edit_button.html" with label="Edit Project" url=update_form_url %}
+                    {% url 'main:delete_project' project.id as delete_form_action%}
+                    {% include "main/components/_form_delete_modal.html" with label="Delete project" target_id=project.id target_title=project.title form_action=delete_form_action %}
+                </div>
             </article>
             {% empty %}
                 <p>Nothing's found...</p>

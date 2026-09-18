@@ -1,13 +1,11 @@
 {# needed: label, target_id, target_title, form_action #}
-<p class="experience-status">
-    <button type="button"
-            class="button button-danger form-delete-button"
-            popovertarget="delete-form-{{ target_id }}"
-            aria-label="Delete {{ target_title }}"
-            title="{{ label }}">
-        {{ label }}
-    </button>
-</p>
+<button type="button"
+        class="button button-danger form-delete-button"
+        popovertarget="delete-form-{{ target_id }}"
+        aria-label="Delete {{ target_title }}"
+        title="{{ label }}">
+    {{ label }}
+</button>
 <div id="delete-form-{{ target_id }}"
      class="form-delete-modal"
      popover="auto"

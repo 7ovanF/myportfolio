@@ -53,8 +53,12 @@
                             </dd>
                         </div>
                     </dl>
-                {% url 'main:delete_experience' experience.id as delete_form_action%}
-                {% include "main/components/_form_delete_modal.html" with label="Delete experience" target_id=experience.id target_title=experience.title form_action=delete_form_action %}
+                    <div class="form-modify-entry-buttons">
+                        {% url "main:update_experience" experience.id as update_form_url %}
+                        {% include "main/components/_form_edit_button.html" with label="Edit experience" url=update_form_url %}
+                        {% url 'main:delete_experience' experience.id as delete_form_action%}
+                        {% include "main/components/_form_delete_modal.html" with label="Delete experience" target_id=experience.id target_title=experience.title form_action=delete_form_action %}
+                    </div>
                 </article>
             {% empty %}
                 <p class="empty-state">

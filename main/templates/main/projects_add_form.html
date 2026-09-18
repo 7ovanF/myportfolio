@@ -1,0 +1,13 @@
+{% extends "main/base_form.html" %}
+{% block title %}
+    <title>{{ display_name }} - Projects Form</title>
+{% endblock %}
+{% block section_title %}
+    <h2 class="section-title">projects <span class="command-option">add --interactive</span></h2>
+{% endblock %}
+{% block form_action %}
+    {% url 'main:create_project' %}
+{% endblock %}
+{% block previous_page %}
+    {% url 'main:projects' %}
+{% endblock %}
