@@ -1,0 +1,13 @@
+{# need: search_action, title_query #}
+<p>Yes, these forms are free to use for now. Feel free to mess the site up</p>
+<form method="get"
+      action="{{ search_action }}"
+      class="form-search">
+    <input type="search"
+           name="title"
+           value="{{ title_query }}"
+           placeholder="Search by title..."
+           class="project-search__input"
+           aria-label="Search by title">
+    <button type="submit" class="button">Search</button>
+</form>

@@ -1,0 +1,41 @@
+{# needed: label, target_id, target_title, form_action #}
+<p class="experience-status">
+    <button type="button"
+            class="button button-danger form-delete-button"
+            popovertarget="delete-form-{{ target_id }}"
+            aria-label="Delete {{ target_title }}"
+            title="{{ label }}">
+        {{ label }}
+    </button>
+</p>
+<div id="delete-form-{{ target_id }}"
+     class="form-delete-modal"
+     popover="auto"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="delete-form-title-{{ target_id }}">
+    <button type="button"
+            class="form-delete-modal__backdrop"
+            popovertarget="delete-form-{{ target_id }}"
+            popovertargetaction="hide"
+            aria-label="Tutup konfirmasi hapus"></button>
+    <div class="form-delete-modal__content">
+        <button type="button"
+                class="form-delete-modal__close"
+                popovertarget="delete-form-{{ target_id }}"
+                popovertargetaction="hide"
+                aria-label="Tutup konfirmasi hapus">×</button>
+        <h2 id="delete-form-title-{{ target_id }}">Delete "{{ target_title }}"?</h2>
+        <div class="form-delete-modal__actions">
+            <form method="post" action="{{ form_action }}">
+                {% csrf_token %}
+                <button type="submit" class="button button-danger">Yea</button>
+            </form>
+            <!-- Who the hell thought a cancel button at the left side is a good idea -->
+            <button type="button"
+                    class="button button-secondary"
+                    popovertarget="delete-form-{{ target_id }}"
+                    popovertargetaction="hide">Cancel</button>
+        </div>
+    </div>
+</div>

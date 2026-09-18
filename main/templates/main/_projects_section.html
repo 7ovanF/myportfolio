@@ -4,24 +4,11 @@
     <div class="container container-boxed">
         <div class="project-header">
             <h2 class="section-title">projects <span class="command-option">--featured</span></h2>
-            <a href="{% url 'main:create_project' %}"
-               class="button project-add-button">
-                <span aria-hidden="true">+</span>
-                Add Project
-            </a>
+            {% url "main:create_project" as create_form_url %}
+            {% include "main/components/_form_add_button.html" with label="Add Project" url=create_form_url%}
         </div>
-        <p>Yes, these forms are free to use for now. Feel free to mess the site up</p>
-        <form method="get"
-              action="{% url 'main:projects' %}"
-              class="project-search">
-            <input type="search"
-                   name="title"
-                   value="{{ title_query }}"
-                   placeholder="Query..."
-                   class="project-search__input"
-                   aria-label="Query...">
-            <button type="submit" class="button">Search</button>
-        </form>
+        {% url 'main:projects' as search_action %}
+        {% include "main/components/_form_search.html" with search_action=search_action %}
 
         <!-- This layout is heavily inspired by https://thavlik.dev/ -->
         <div class="project-cards">
@@ -47,8 +34,9 @@
                         <a class="button project-skill-btn">{{ skill.title|slugify }}</a>
                     {% endfor %}
                 </div>
-                {% include "main/components/project_delete_modal.html" with project=project %}
                 {% endif %}
+                {% url 'main:delete_project' project.id as delete_form_action%}
+                {% include "main/components/_form_delete_modal.html" with label="Delete project" target_id=project.id target_title=project.title form_action=delete_form_action %}
             </article>
             {% empty %}
                 <p>Nothing's found...</p>

@@ -65,6 +65,10 @@ section {
     margin: 2.5em 0;
 }
 
+.section-header {
+    display: flex;
+}
+
 /* Typography */
 
 h1 {
@@ -151,12 +155,12 @@ button.button {
 /* === Forms === */
 
 /* Search bar */
-.project-add-button {
+.form-add-button {
     margin-left: auto;
     height: fit-content;
 }
 
-.project-search {
+.form-search {
     display: flex;
     gap: .5rem;
     margin-bottom: 1rem;
@@ -217,6 +221,83 @@ select {
     border-radius: var(--radius);
     cursor: pointer;
 }
+
+/* Delete modal & button */
+.form-delete-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 1rem;
+    border: 0;
+    background: transparent;
+    z-index: 10;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-delete-modal:popover-open {
+    display: flex;
+}
+
+.form-delete-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    padding: 0;
+    background: rgba(28, 25, 23, 0.58);
+    cursor: default;
+}
+
+.form-delete-modal__content {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 480px);
+    padding: 1.5rem;
+    background: var(--paper);
+    border: 1px solid var(--primary);
+    border-radius: var(--radius);
+    box-shadow: 0 1rem 3rem rgba(28, 25, 23, 0.22);
+}
+
+.form-delete-modal__content h2 {
+    margin: 0 0 0.75rem;
+    font-size: 1.5rem;
+    color: var(--primary-text);
+}
+
+.form-delete-modal__close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    font-size: 1.8rem;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--primary-text);
+}
+
+.form-delete-modal__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.form-delete-button {
+    display: block;
+    margin-left: auto;
+}
+
+
 
 /* ==========
 Header // Nav
@@ -450,86 +531,6 @@ Projects
     font-size: .8rem;
     text-transform: lowercase;
     text-decoration: none;
-}
-
-.project-header {
-    display: flex;
-}
-
-
-/* Delete modal */
-.project-delete-modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    max-width: none;
-    max-height: none;
-    margin: 0;
-    padding: 1rem;
-    border: 0;
-    background: transparent;
-    z-index: 10;
-    align-items: center;
-    justify-content: center;
-}
-
-.project-delete-modal:popover-open {
-    display: flex;
-}
-
-.project-delete-modal__backdrop {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    border: 0;
-    padding: 0;
-    background: rgba(28, 25, 23, 0.58);
-    cursor: default;
-}
-
-.project-delete-modal__content {
-    position: relative;
-    z-index: 1;
-    width: min(100%, 480px);
-    padding: 1.5rem;
-    background: var(--paper);
-    border: 1px solid var(--primary);
-    border-radius: var(--radius);
-    box-shadow: 0 1rem 3rem rgba(28, 25, 23, 0.22);
-}
-
-.project-delete-modal__content h2 {
-    margin: 0 0 0.75rem;
-    font-size: 1.5rem;
-    color: var(--primary-text);
-}
-
-.project-delete-modal__close {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    border: 0;
-    padding: 0;
-    background: transparent;
-    font-size: 1.8rem;
-    line-height: 1;
-    cursor: pointer;
-    color: var(--primary-text);
-}
-
-.project-delete-modal__actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.75rem;
-    margin-top: 1.5rem;
-}
-
-.project-delete-button {
-    display: block;
-    margin-left: auto;
 }
 
 /* =======
