@@ -55,6 +55,10 @@ class MainTest(TestCase):
         self.assertContains(response, self.experience.category)
         self.assertContains(response, "active (running)")
         self.assertContains(response, f'href="{reverse("main:landing_page")}"')
+        self.assertContains(
+            response,
+            f'href="{reverse("main:update_experience", args=[self.experience.pk])}"',
+        )
 
     def test_empty_experience_page(self):
         Experience.objects.all().delete()
@@ -70,6 +74,56 @@ class MainTest(TestCase):
         self.assertFalse(self.experience.is_ongoing)
         self.assertContains(response, "inactive (dead)")
 
+    def test_update_experience_form_is_prefilled(self):
+        response = self.client.get(
+            reverse("main:update_experience", args=[self.experience.pk])
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "main/experience_edit_form.html")
+        self.assertEqual(response.context["form"].instance, self.experience)
+        self.assertContains(response, self.experience.title)
+
+    def test_update_experience(self):
+        response = self.client.post(
+            reverse("main:update_experience", args=[self.experience.pk]),
+            {
+                "title": "Senior Unit Tester",
+                "description": "I now enjoy my job.", # yes i do after giving it all to codex lmao
+                "category": "freelance",
+                "thumbnail": "https://example.com/tester.png",
+                "started_at": "2025-01-01",
+                "ended_at": "2026-01-01",
+            },
+        )
+
+        self.assertRedirects(response, reverse("main:experience"))
+        self.experience.refresh_from_db()
+        self.assertEqual(self.experience.title, "Senior Unit Tester")
+        self.assertEqual(self.experience.description, "I now enjoy my job.")
+        self.assertEqual(self.experience.category, "freelance")
+        self.assertEqual(self.experience.thumbnail, "https://example.com/tester.png")
+        self.assertEqual(str(self.experience.started_at), "2025-01-01")
+        self.assertEqual(str(self.experience.ended_at), "2026-01-01")
+
+    def test_update_experience_rejects_invalid_data_without_changing_record(self):
+        response = self.client.post(
+            reverse("main:update_experience", args=[self.experience.pk]),
+            {"title": "", "description": "Updated description"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFormError(response.context["form"], "title", "This field is required.")
+        self.experience.refresh_from_db()
+        self.assertEqual(self.experience.title, "Unit Tester")
+
+    def test_update_experience_returns_404_for_unknown_record(self):
+        response = self.client.get(
+            reverse("main:update_experience", args=[self.project.pk])
+        )
+
+        self.assertEqual(response.status_code, 404)
+
     # === Project ===
     def test_project_model(self):
         self.assertEqual(str(self.project), "A Unit Test")
@@ -83,6 +137,10 @@ class MainTest(TestCase):
         self.assertContains(response, self.project.title)
         self.assertContains(response, "unit-testing")
         self.assertContains(response, f'href="{reverse("main:landing_page")}"')
+        self.assertContains(
+            response,
+            f'href="{reverse("main:update_project", args=[self.project.pk])}"',
+        )
 
     def test_empty_project_page(self):
         Project.objects.all().delete()
@@ -153,6 +211,59 @@ class MainTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertFormError(response.context["form"], "title", "This field is required.")
         self.assertEqual(Project.objects.count(), project_count)
+
+    def test_update_project_form_is_prefilled(self):
+        response = self.client.get(reverse("main:update_project", args=[self.project.pk]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "main/projects_edit_form.html")
+        self.assertEqual(response.context["form"].instance, self.project)
+        self.assertContains(response, self.project.title)
+        self.assertContains(response, self.skill.title)
+
+    def test_update_project(self):
+        new_skill = Skill.objects.create(
+            title="Regression Testing",
+            description="Tests after edits.",
+            proficiency="experienced",
+        )
+
+        response = self.client.post(
+            reverse("main:update_project", args=[self.project.pk]),
+            {
+                "title": "An Updated Unit Test",
+                "url": "https://example.com/project",
+                "thumbnail": "https://example.com/project.png",
+                "description": "Updated through the edit form.",
+                "skills": [new_skill.pk],
+            },
+        )
+
+        self.assertRedirects(response, reverse("main:projects"))
+        self.project.refresh_from_db()
+        self.assertEqual(self.project.title, "An Updated Unit Test")
+        self.assertEqual(self.project.url, "https://example.com/project")
+        self.assertEqual(self.project.thumbnail, "https://example.com/project.png")
+        self.assertEqual(self.project.description, "Updated through the edit form.")
+        self.assertQuerySetEqual(self.project.skills.all(), [new_skill])
+
+    def test_update_project_rejects_invalid_data_without_changing_record(self):
+        response = self.client.post(
+            reverse("main:update_project", args=[self.project.pk]),
+            {"title": "", "description": "Updated description"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFormError(response.context["form"], "title", "This field is required.")
+        self.project.refresh_from_db()
+        self.assertEqual(self.project.title, "A Unit Test")
+
+    def test_update_project_returns_404_for_unknown_record(self):
+        response = self.client.get(
+            reverse("main:update_project", args=[self.experience.pk])
+        )
+
+        self.assertEqual(response.status_code, 404)
 
     def test_delete_project(self):
         response = self.client.post(
