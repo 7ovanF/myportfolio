@@ -91,7 +91,7 @@ def get_projects_json(request):
     return HttpResponse(projects_json, content_type="application/json")
 
 # Forms 
-@login_required(login_url=reverse_lazy("login"))
+@login_required(login_url=reverse_lazy("login_user"))
 @superuser_required
 def create_project(request):
     form = ProjectForm(request.POST or None)
@@ -107,7 +107,7 @@ def create_project(request):
     }
     return render(request, "main/projects_add_form.html", context)
 
-@login_required(login_url=reverse_lazy("login"))
+@login_required(login_url=reverse_lazy("login_user"))
 @superuser_required
 def update_project(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
@@ -125,7 +125,7 @@ def update_project(request, project_id):
     }
     return render(request, "main/projects_edit_form.html", context)
 
-@login_required(login_url=reverse_lazy("login"))
+@login_required(login_url=reverse_lazy("login_user"))
 @superuser_required
 def delete_project(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
@@ -137,7 +137,7 @@ def delete_project(request, project_id):
 
     return redirect("main:projects")
 
-@login_required(login_url=reverse_lazy("login"))
+@login_required(login_url=reverse_lazy("login_user"))
 def toggle_project_star(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
     
@@ -180,7 +180,7 @@ def get_experiences_json(request):
     return HttpResponse(experiences_json, content_type="application/json")
 
 # Forms 
-@login_required(login_url=reverse_lazy("login"))
+@login_required(login_url=reverse_lazy("login_user"))
 @superuser_required
 def create_experience(request):
     form = ExperienceForm(request.POST or None)
@@ -196,7 +196,7 @@ def create_experience(request):
     }
     return render(request, "main/experience_add_form.html", context)
 
-@login_required(login_url=reverse_lazy("login"))
+@login_required(login_url=reverse_lazy("login_user"))
 @superuser_required
 def update_experience(request, experience_id):
     experience = get_object_or_404(Experience, pk=experience_id)
@@ -215,7 +215,7 @@ def update_experience(request, experience_id):
     return render(request, "main/experience_edit_form.html", context)
 
 
-@login_required(login_url=reverse_lazy("login"))
+@login_required(login_url=reverse_lazy("login_user"))
 @superuser_required
 def delete_experience(request, experience_id):
     experience = get_object_or_404(Experience, pk=experience_id)

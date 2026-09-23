@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -7,6 +8,14 @@ from main.models import Project, Skill, Experience
 
 class MainTest(TestCase):
     def setUp(self):
+        self.admin = get_user_model().objects.create_superuser(
+            username="admin", password="test-password"
+        )
+        self.user = get_user_model().objects.create_user(
+            username="member", password="test-password"
+        )
+        self.client.force_login(self.admin)
+
         self.experience = Experience.objects.create(
                 title="Unit Tester",
                 description="i hate my job",
@@ -160,7 +169,26 @@ class MainTest(TestCase):
         response = self.client.get(reverse("main:get_projects_json"))
 
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "application/json")
         self.assertEqual(response.json()[0]["fields"]["title"], self.project.title)
+
+    def test_get_experiences_json_filters_by_title(self):
+        Experience.objects.create(
+            title="Unrelated Experience",
+            description="This should not be returned by the search.",
+            category="research",
+            started_at="2025-01-01",
+        )
+
+        response = self.client.get(
+            reverse("main:get_experiences_json"), {"title": "unit"}
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "application/json")
+        payload = response.json()
+        self.assertEqual(len(payload), 1)
+        self.assertEqual(payload[0]["fields"]["title"], self.experience.title)
 
     # === Project search ===
     def test_search_projects_by_title(self):
@@ -265,6 +293,40 @@ class MainTest(TestCase):
 
         self.assertEqual(response.status_code, 404)
 
+    def test_create_experience(self):
+        response = self.client.post(
+            reverse("main:create_experience"),
+            {
+                "title": "Created Experience",
+                "description": "Created through the form.",
+                "category": "internship",
+                "started_at": "2025-01-01",
+            },
+        )
+
+        self.assertRedirects(response, reverse("main:experience"))
+        self.assertTrue(Experience.objects.filter(title="Created Experience").exists())
+
+    def test_create_experience_requires_required_fields(self):
+        experience_count = Experience.objects.count()
+
+        response = self.client.post(reverse("main:create_experience"), {"title": ""})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFormError(response.context["form"], "title", "This field is required.")
+        self.assertEqual(Experience.objects.count(), experience_count)
+
+    def test_delete_experience_only_deletes_on_post(self):
+        url = reverse("main:delete_experience", args=[self.experience.pk])
+
+        get_response = self.client.get(url)
+        self.assertRedirects(get_response, reverse("main:experience"))
+        self.assertTrue(Experience.objects.filter(pk=self.experience.pk).exists())
+
+        post_response = self.client.post(url)
+        self.assertRedirects(post_response, reverse("main:experience"))
+        self.assertFalse(Experience.objects.filter(pk=self.experience.pk).exists())
+
     def test_delete_project(self):
         response = self.client.post(
             reverse("main:delete_project", args=[self.project.pk])
@@ -296,3 +358,46 @@ class MainTest(TestCase):
         response = self.client.get(reverse("main:projects"))
 
         self.assertNotContains(response, "unit-testing")
+
+    # === Authorization and starring ===
+    def test_anonymous_user_is_redirected_from_admin_operations(self):
+        self.client.logout()
+        url = reverse("main:create_project")
+
+        response = self.client.get(url)
+
+        self.assertRedirects(response, f"{reverse('login_user')}?next={url}")
+
+    def test_non_superuser_cannot_manage_projects_or_experiences(self):
+        self.client.force_login(self.user)
+
+        project_response = self.client.get(
+            reverse("main:update_project", args=[self.project.pk])
+        )
+        experience_response = self.client.get(
+            reverse("main:update_experience", args=[self.experience.pk])
+        )
+
+        self.assertEqual(project_response.status_code, 403)
+        self.assertEqual(experience_response.status_code, 403)
+
+    def test_authenticated_user_can_star_and_unstar_a_project(self):
+        self.client.force_login(self.user)
+        url = reverse("main:toggle_project_star", args=[self.project.pk])
+
+        first_response = self.client.post(url)
+        self.assertRedirects(first_response, reverse("main:projects"))
+        self.assertTrue(self.project.starred_by.filter(pk=self.user.pk).exists())
+
+        second_response = self.client.post(url)
+        self.assertRedirects(second_response, reverse("main:projects"))
+        self.assertFalse(self.project.starred_by.filter(pk=self.user.pk).exists())
+
+    def test_get_star_request_does_not_change_project_stars(self):
+        self.client.force_login(self.user)
+        url = reverse("main:toggle_project_star", args=[self.project.pk])
+
+        response = self.client.get(url)
+
+        self.assertRedirects(response, reverse("main:projects"))
+        self.assertFalse(self.project.starred_by.filter(pk=self.user.pk).exists())
