@@ -155,6 +155,9 @@ WHITENOISE_USE_FINDERS = True
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
+# Other fixed URLs
+LOGIN_URL = "login_user"
+
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
