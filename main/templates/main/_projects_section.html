@@ -5,7 +5,9 @@
         <div class="section-header">
             <h2 class="section-title">projects <span class="command-option">--featured</span></h2>
             {% url "main:create_project" as create_form_url %}
-            {% include "main/components/_form_add_button.html" with label="Add Project" url=create_form_url%}
+            {% if user.is_superuser %}
+                {% include "main/components/_form_add_button.html" with label="Add Project" url=create_form_url%}
+            {% endif %}
         </div>
         {% url 'main:projects' as search_action %}
         {% include "main/components/_form_search.html" with search_action=search_action %}
@@ -35,12 +37,15 @@
                     {% endfor %}
                 </div>
                 {% endif %}
-                <div class="form-modify-entry-buttons">
-                    {% url "main:update_project" project.id as update_form_url %}
-                    {% include "main/components/_form_edit_button.html" with label="Edit Project" url=update_form_url %}
-                    {% url 'main:delete_project' project.id as delete_form_action%}
-                    {% include "main/components/_form_delete_modal.html" with label="Delete project" target_id=project.id target_title=project.title form_action=delete_form_action %}
-                </div>
+                {% include "main/components/_project_star.html" with project=project %}
+                {% if user.is_superuser %}
+                    <div class="form-modify-entry-buttons">
+                        {% url "main:update_project" project.id as update_form_url %}
+                        {% include "main/components/_form_edit_button.html" with label="Edit Project" url=update_form_url %}
+                        {% url 'main:delete_project' project.id as delete_form_action%}
+                        {% include "main/components/_form_delete_modal.html" with label="Delete project" target_id=project.id target_title=project.title form_action=delete_form_action %}
+                    </div>
+                {% endif %}
             </article>
             {% empty %}
                 <p>Nothing's found...</p>

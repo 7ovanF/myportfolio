@@ -2,6 +2,9 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.core import serializers
 from django.http import HttpResponse
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.urls import reverse_lazy
+from portfolio.decorators import superuser_required
 
 from .models import Project, Experience
 from .forms import ProjectForm, ExperienceForm
@@ -48,9 +51,11 @@ def landing_page(request):
         )
     projects = [ project.object for project in projects ]
 
+    last_login = request.COOKIES.get('last_login', '')
     context = {
             "active_page": "landing_page",
             **base_context, **profile_context,
+            "last_login": last_login,
             "project_list": projects,
             "experience_list": Experience.objects.all(),
         }
@@ -82,10 +87,12 @@ def get_projects_json(request):
     if title_query:
         projects = projects.filter(title__icontains=title_query)
 
-    projects_json = serializers.serialize("json", projects)
+    projects_json = serializers.serialize("json", projects, use_natural_foreign_keys=True)
     return HttpResponse(projects_json, content_type="application/json")
 
 # Forms 
+@login_required(login_url=reverse_lazy("login"))
+@superuser_required
 def create_project(request):
     form = ProjectForm(request.POST or None)
 
@@ -100,6 +107,8 @@ def create_project(request):
     }
     return render(request, "main/projects_add_form.html", context)
 
+@login_required(login_url=reverse_lazy("login"))
+@superuser_required
 def update_project(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
@@ -116,6 +125,8 @@ def update_project(request, project_id):
     }
     return render(request, "main/projects_edit_form.html", context)
 
+@login_required(login_url=reverse_lazy("login"))
+@superuser_required
 def delete_project(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
@@ -123,6 +134,18 @@ def delete_project(request, project_id):
         project.delete()
         messages.success(request, "Project berhasil dihapus!")
         return redirect("main:projects")
+
+    return redirect("main:projects")
+
+@login_required(login_url=reverse_lazy("login"))
+def toggle_project_star(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+    
+    if request.method == "POST":
+        if request.user in project.starred_by.all():
+            project.starred_by.remove(request.user)
+        else:
+            project.starred_by.add(request.user)
 
     return redirect("main:projects")
 
@@ -157,6 +180,8 @@ def get_experiences_json(request):
     return HttpResponse(experiences_json, content_type="application/json")
 
 # Forms 
+@login_required(login_url=reverse_lazy("login"))
+@superuser_required
 def create_experience(request):
     form = ExperienceForm(request.POST or None)
 
@@ -171,6 +196,8 @@ def create_experience(request):
     }
     return render(request, "main/experience_add_form.html", context)
 
+@login_required(login_url=reverse_lazy("login"))
+@superuser_required
 def update_experience(request, experience_id):
     experience = get_object_or_404(Experience, pk=experience_id)
 
@@ -188,6 +215,8 @@ def update_experience(request, experience_id):
     return render(request, "main/experience_edit_form.html", context)
 
 
+@login_required(login_url=reverse_lazy("login"))
+@superuser_required
 def delete_experience(request, experience_id):
     experience = get_object_or_404(Experience, pk=experience_id)
 

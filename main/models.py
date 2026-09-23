@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from django.contrib.auth.models import User
 
 class Project(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -8,6 +9,9 @@ class Project(models.Model):
     thumbnail = models.URLField(blank=True, null=True, help_text="16:9 pls")
     description = models.TextField(blank=True, help_text="Write in Markdown!")
     skills = models.ManyToManyField("Skill", related_name="projects", blank=True)
+    starred_by = models.ManyToManyField(
+        User, related_name="starred_projects", blank=True
+    )
 
     def __str__(self):
         return self.title

@@ -21,11 +21,14 @@ from django.conf import settings
 from django.conf.urls.static import static
 # from django.views.static import serve
 
-from portfolio.views import favicon
+from portfolio.views import favicon, register, login_user, logout_user
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include("main.urls")),
+    path('login', login_user, name="login_user"),
+    path("logout/", logout_user, name="logout"),
+    path('register', register, name="register"),
     path('favicon.ico', favicon, name="favicon"),
 ]
 

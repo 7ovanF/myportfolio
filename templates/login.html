@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}
+    <title>{{ display_name }} - Login</title>
+{% endblock %}
+{% block content %}
+    <main>
+        <section class="login">
+            <div class="container container-boxed">
+                <h2>Login</h2>
+                {% for message in messages %}
+                    <p class="form-message">{{ message }}</p>
+                {% endfor %}
+                <form method="post" action="{% url 'login_user' %}" class="input-form">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {% for error in field.errors %}
+                                <p class="form-error">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <p class="form-error">{{ error }}</p>
+                    {% endfor %}
+                    <button type="submit" class="button">Login</button>
+                </form>
+                <p>Belum punya akun? <a href="{% url 'register' %}">Daftar di sini</a>.</p>
+            </div>
+        </section>
+    </main>
+{% endblock content %}

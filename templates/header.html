@@ -7,6 +7,15 @@
          --><span id="current-host"></span>
         </a>
         <nav>
+
+            {% if user.is_authenticated %}
+                <span class="nav-user">{{ user.username }}</span>
+                <a href="{% url 'logout' %}">Logout</a>
+            {% else %}
+                <a href="{% url 'login_user' %}">Login</a>
+                <a href="{% url 'register' %}">Register</a>
+            {% endif %}
+
             <a href="{% url 'main:landing_page' %}"
                {% if active_page == 'landing_page' %}class="nav-active"{% endif %}
             >0:profile</a>
@@ -17,6 +26,7 @@
                {% if active_page == 'experience' %}class="nav-active"{% endif %}
             >2:experience</a>
         </nav>
+
     </div>
 </header>
 
