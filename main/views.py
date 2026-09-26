@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import permission_required
 from django.shortcuts import get_object_or_404, render, redirect
 from django.core import serializers
 from django.http import HttpResponse
@@ -92,7 +93,7 @@ def get_projects_json(request):
 
 # Forms 
 @login_required()
-@superuser_required
+@permission_required('main.add_project', raise_exception=True)
 def create_project(request):
     form = ProjectForm(request.POST or None)
 
@@ -108,7 +109,7 @@ def create_project(request):
     return render(request, "main/projects_add_form.html", context)
 
 @login_required()
-@superuser_required
+@permission_required('main.change_project', raise_exception=True)
 def update_project(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
@@ -126,7 +127,7 @@ def update_project(request, project_id):
     return render(request, "main/projects_edit_form.html", context)
 
 @login_required()
-@superuser_required
+@permission_required('main.delete_project', raise_exception=True)
 def delete_project(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
@@ -181,7 +182,7 @@ def get_experiences_json(request):
 
 # Forms 
 @login_required()
-@superuser_required
+@permission_required('main.add_experience', raise_exception=True)
 def create_experience(request):
     form = ExperienceForm(request.POST or None)
 
@@ -197,7 +198,7 @@ def create_experience(request):
     return render(request, "main/experience_add_form.html", context)
 
 @login_required()
-@superuser_required
+@permission_required('main.change_experience', raise_exception=True)
 def update_experience(request, experience_id):
     experience = get_object_or_404(Experience, pk=experience_id)
 
@@ -216,7 +217,7 @@ def update_experience(request, experience_id):
 
 
 @login_required()
-@superuser_required
+@permission_required('main.delete_experience', raise_exception=True)
 def delete_experience(request, experience_id):
     experience = get_object_or_404(Experience, pk=experience_id)
 
