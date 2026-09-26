@@ -90,9 +90,12 @@ python manage.py runserver
 
 ## Tugas 4
 
-#### Notes
+### Notes
 - Implementasi permissions dan group dalam kode cukup menambahkan pengecekan permissions (via decorator) karena keduanya murni konsep database. Selain itu, permissions dasar (read, add, edit, delete masing-masing model) secara otomatis dibuat oleh django.
 - Stars di page experiences menggunakan sistem yang sama dengan projects (atribut star di model experiences, bukan user)
+
+### Jawaban Refleksi
+wait... theres none for this week
 
 ---
 
