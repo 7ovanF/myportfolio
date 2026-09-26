@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Permission
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -368,7 +369,7 @@ class MainTest(TestCase):
 
         self.assertRedirects(response, f"{reverse('login_user')}?next={url}")
 
-    def test_non_superuser_cannot_manage_projects_or_experiences(self):
+    def test_user_without_permissions_cannot_manage_projects_or_experiences(self):
         self.client.force_login(self.user)
 
         project_response = self.client.get(
@@ -380,6 +381,49 @@ class MainTest(TestCase):
 
         self.assertEqual(project_response.status_code, 403)
         self.assertEqual(experience_response.status_code, 403)
+
+    def test_non_superuser_with_model_permissions_can_manage_projects_and_experiences(self):
+        self.user.user_permissions.add(
+            *Permission.objects.filter(
+                content_type__app_label="main",
+                codename__in=[
+                    "add_project",
+                    "change_project",
+                    "delete_project",
+                    "add_experience",
+                    "change_experience",
+                    "delete_experience",
+                ],
+            )
+        )
+        self.client.force_login(self.user)
+
+        project_create_response = self.client.get(reverse("main:create_project"))
+        project_update_response = self.client.get(
+            reverse("main:update_project", args=[self.project.pk])
+        )
+        experience_create_response = self.client.get(reverse("main:create_experience"))
+        experience_update_response = self.client.get(
+            reverse("main:update_experience", args=[self.experience.pk])
+        )
+
+        self.assertFalse(self.user.is_superuser)
+        self.assertEqual(project_create_response.status_code, 200)
+        self.assertEqual(project_update_response.status_code, 200)
+        self.assertEqual(experience_create_response.status_code, 200)
+        self.assertEqual(experience_update_response.status_code, 200)
+
+        project_delete_response = self.client.post(
+            reverse("main:delete_project", args=[self.project.pk])
+        )
+        experience_delete_response = self.client.post(
+            reverse("main:delete_experience", args=[self.experience.pk])
+        )
+
+        self.assertRedirects(project_delete_response, reverse("main:projects"))
+        self.assertRedirects(experience_delete_response, reverse("main:experience"))
+        self.assertFalse(Project.objects.filter(pk=self.project.pk).exists())
+        self.assertFalse(Experience.objects.filter(pk=self.experience.pk).exists())
 
     def test_authenticated_user_can_star_and_unstar_a_project(self):
         self.client.force_login(self.user)
@@ -401,3 +445,24 @@ class MainTest(TestCase):
 
         self.assertRedirects(response, reverse("main:projects"))
         self.assertFalse(self.project.starred_by.filter(pk=self.user.pk).exists())
+
+    def test_authenticated_user_can_star_and_unstar_an_experience(self):
+        self.client.force_login(self.user)
+        url = reverse("main:toggle_experience_star", args=[self.experience.pk])
+
+        first_response = self.client.post(url)
+        self.assertRedirects(first_response, reverse("main:experience"))
+        self.assertTrue(self.experience.starred_by.filter(pk=self.user.pk).exists())
+
+        second_response = self.client.post(url)
+        self.assertRedirects(second_response, reverse("main:experience"))
+        self.assertFalse(self.experience.starred_by.filter(pk=self.user.pk).exists())
+
+    def test_get_star_request_does_not_change_experience_stars(self):
+        self.client.force_login(self.user)
+        url = reverse("main:toggle_experience_star", args=[self.experience.pk])
+
+        response = self.client.get(url)
+
+        self.assertRedirects(response, reverse("main:experience"))
+        self.assertFalse(self.experience.starred_by.filter(pk=self.user.pk).exists())

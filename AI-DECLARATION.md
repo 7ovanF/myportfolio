@@ -19,3 +19,4 @@ In some repetitive sections (especially unit tests), complete code is generated 
 - Project and experience update feature tests: https://chatgpt.com/s/cx_6aacd61cac2881919e1a5b88dc3678c4
 - Decorator to check for superuser status: https://chatgpt.com/s/cx_6ab25361eb44819190142dcc4fdf1d81 
 - Auth and star test cases: https://chatgpt.com/s/cx_6ab32e3987b481918c99e476ae4ce87b
+- Permission and experience star test cases: https://chatgpt.com/s/cx_6ab79907503481918571350b1d76b7a0
