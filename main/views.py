@@ -227,3 +227,15 @@ def delete_experience(request, experience_id):
         return redirect("main:experience")
 
     return redirect("main:experience")
+
+@login_required()
+def toggle_experience_star(request, experience_id):
+    experience = get_object_or_404(Experience, pk=experience_id)
+    
+    if request.method == "POST":
+        if request.user in experience.starred_by.all():
+            experience.starred_by.remove(request.user)
+        else:
+            experience.starred_by.add(request.user)
+        
+    return redirect("main:experience")

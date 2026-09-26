@@ -88,6 +88,12 @@ python manage.py runserver
     
     Serialization diperlukan karena kedua sisi dalam request, yakni client dan server, belum tentu memiliki format yang sama dalam membaca data. Untuk mengirimkannya, server harus mengonversi ke bentuk yang universal dan mudah ditransmisi (misalnya JSON). Setelah diterima, data dapat di-deserialize oleh client ke bentuk yang dikenali olehnya tanpa memedulikan format awal yang dipakai server.
 
+## Tugas 4
+
+#### Notes
+- Implementasi permissions dan group dalam kode cukup menambahkan pengecekan permissions (via decorator) karena keduanya murni konsep database. Selain itu, permissions dasar (read, add, edit, delete masing-masing model) secara otomatis dibuat oleh django.
+- Stars di page experiences menggunakan sistem yang sama dengan projects (atribut star di model experiences, bukan user)
+
 ---
 
 AI declaration in [AI-DECLARATION.md](AI-DECLARATION.md)

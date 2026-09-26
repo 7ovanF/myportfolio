@@ -1,0 +1,11 @@
+{# required: form_action, starred_by (as direct attribute of target object) #}
+<form method="post" action="{{ form_action }}" class="star-form">
+    {% csrf_token %}
+    <button type="submit"
+            class="button button-star{% if user in starred_by.all %} is-starred{% endif %}"
+            title="{% if starred_by.all %}Starred by {{ starred_by.all|join:', ' }}{% else %}Be the first!{% endif %}">
+        <span aria-hidden="true">★</span>
+        {% if user in starred_by.all %}Unstar{% else %}Star{% endif %}
+        <span class="star-count">{{ starred_by.count }}</span>
+    </button>
+</form>
