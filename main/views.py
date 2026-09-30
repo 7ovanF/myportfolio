@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import permission_required
 from django.shortcuts import get_object_or_404, render, redirect
 from django.core import serializers
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
@@ -45,19 +45,11 @@ profile_context = {
 }
 
 def landing_page(request):
-    json_projects = get_projects_json(request)
-    projects = serializers.deserialize(
-            "json",
-            json_projects.content.decode("utf-8"),
-        )
-    projects = [ project.object for project in projects ]
-
     last_login = request.COOKIES.get('last_login', '')
     context = {
             "active_page": "landing_page",
             **base_context, **profile_context,
             "last_login": last_login,
-            "project_list": projects,
             "experience_list": Experience.objects.all(),
         }
     return render(request, "main/profile.html", context)
@@ -66,30 +58,43 @@ def landing_page(request):
 # PROJECTS 
 # ========
 def projects(request):
-    json_projects = get_projects_json(request)
-    projects = serializers.deserialize(
-            "json",
-            json_projects.content.decode("utf-8"),
-        )
-    projects = [ project.object for project in projects ]
-
     context = {
             "active_page": "projects",
             **base_context,
-            "project_list": projects,
         }
     return render(request, "main/projects.html", context)
 
 # APIs
 def get_projects_json(request):
     title_query = request.GET.get("title", "").strip()
-    projects = Project.objects.all()
+    # prefetched as recommended by django ORM lens
+    projects = Project.objects.prefetch_related("starred_by").prefetch_related("skills").all()
 
     if title_query:
         projects = projects.filter(title__icontains=title_query)
 
-    projects_json = serializers.serialize("json", projects, use_natural_foreign_keys=True)
-    return HttpResponse(projects_json, content_type="application/json")
+    data = []
+    for project in projects:
+        starred_by = project.starred_by.all()
+        is_starred = request.user in starred_by if request.user.is_authenticated else False
+        skill_titles = [skill.title for skill in project.skills.all()]
+        starred_by_names = [user.username for user in starred_by]
+
+        data.append({
+            "id": str(project.pk),
+            "title": project.title,
+            "url": project.url,
+            "thumbnail": project.thumbnail,
+            "description": project.description,
+            "skill_titles": skill_titles,
+            "star_count": starred_by.count(),
+            "is_starred": is_starred,
+            "starred_by_names": starred_by_names,
+        })
+    response = {
+        "data": data,
+    }
+    return JsonResponse(response, safe=False)
 
 # Forms 
 @login_required()

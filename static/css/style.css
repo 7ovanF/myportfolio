@@ -532,6 +532,8 @@ Projects
 }
 
 .project-skills {
+    display: flex;
+    gap: .5em;
     border-top: 1px solid var(--line);
     padding-top: 1em;
 }
@@ -604,7 +606,7 @@ Experience
 
 .experience-description,
 .empty-state {
-    color: var(--text-muted);
+    color: var(--accent);
 }
 
 /* ===

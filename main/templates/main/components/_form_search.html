@@ -1,9 +1,10 @@
-{# need: search_action, title_query #}
+{# need: section_name, title_query #}
 <form method="get"
-      action="{{ search_action }}"
+      id="{{ section_name }}-form-search"
       class="form-search">
     <input type="search"
            name="title"
+           id="{{section_name}}-form-search-input"
            value="{{ title_query }}"
            placeholder="Search by title..."
            class="project-search__input"
