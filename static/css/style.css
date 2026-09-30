@@ -17,6 +17,8 @@
     --accent-dark: #223333;
     --paper: #1b1d1f;
     --paper-light: #1b1d33;
+    --danger: #b42318;
+    --success: greenyellow;
     
     --line: var(--accent);
     --radius: 2px;
@@ -146,12 +148,12 @@ button.button {
 }
 
 .button-danger {
-    border-color: #b42318;
-    color: #b42318;
+    border-color: var(--danger);
+    color: var(--danger);
 }
 
 .button-danger:hover {
-    background-color: #b42318;
+    background-color: var(--danger);
     color: var(--paper);
 }
 
@@ -179,7 +181,7 @@ button.button {
 
 
 .form-error {
-    color: #b42318;
+    color: var(--danger);
     font-size: 0.85rem;
     margin-top: 0.35rem;
 }
@@ -584,11 +586,11 @@ Experience
 }
 
 .experience-status-active {
-    color: greenyellow;
+    color: var(--success);
 }
 
 .experience-status-inactive {
-    color: red;
+    color: var(--danger);
 }
 
 .experience-status-date {
