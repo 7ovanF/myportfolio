@@ -6,8 +6,14 @@
             <h2 class="section-title">projects <span class="command-option">--featured</span></h2>
             {% url "main:create_project" as create_form_url %}
             {% if perms.main.add_project %}
-                {% include "main/components/_form_add_button.html" with section_name="projects" label="Add Project" %}
-            {% endif %}
+                <button type="button"
+                        class="button form-add-button"
+                        popovertarget="add-project-modal">
+                    <span aria-hidden="true">+</span>
+                    Add Project
+                </button>
+                {# why the fuck should i care about structure anymore #}
+                {% include "main/components/_add_project_modal.html" %} {% endif %}
         </div>
         {% include "main/components/_form_search.html" with section_name="projects" %}
         <!-- Status message -->
@@ -38,11 +44,11 @@
         const articleElement = document.createElement('article');
         articleElement.className = 'project-card';
 
-        const titleHtml = `<h3 class="project-title">${ project.title }</h3>`;
+        const titleHtml = `<h3 class="project-title">${ escapeHtml(project.title) }</h3>`;
 
         const thumbnailHtml = project.thumbnail
             ? `<img src="${ project.thumbnail }" class="project-img" 
-                alt="Image for the project ${ project.title }">`
+                alt="Image for the project ${ escapeHtml(project.title) }">`
             : '<img>';
         
 
@@ -172,4 +178,50 @@
 
     // Start the application
     searchProjects();
+    
+    // === Modal Form =
+    const CREATE_PROJECT_ENDPOINT = "{% url 'main:create_project_ajax' %}";
+    const projectForm = document.getElementById('project-form');
+
+    // Send the form data to the server
+    async function addProject(event) {
+        event.preventDefault();
+
+        const submitButton = projectForm.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+
+        try {
+            const response = await fetch(CREATE_PROJECT_ENDPOINT, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': getCookie('csrftoken') },
+                body: new FormData(projectForm),
+            });
+            const result = await response.json().catch(() => ({}));
+
+            if (response.ok) {
+                projectForm.reset();
+                closeProjectModal();
+                showToast('Success', 'New project added successfully!', 'success');
+                fetchProjects(searchInput.value.trim());
+            } else {
+                const errorMessages = result.errors
+                    ? Object.values(result.errors).flat().map(error => error.message)
+                    : [result.message || `Something went wrong (status ${response.status}).`];
+                showToast('Failed to add project', errorMessages.join(' '), 'error');
+            }
+        } catch (error) {
+            console.error('Error adding project:', error);
+            showToast('Failed to add project', 'Could not reach the server. Please try again.', 'error');
+        } finally {
+            submitButton.disabled = false;
+        }
+    }
+
+    if (projectForm) {
+        projectForm.addEventListener('submit', addProject);
+    }
+
+    function closeProjectModal() {
+        document.getElementById("add-project-modal").hidePopover();
+    }
 </script>

@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import permission_required
 from django.shortcuts import get_object_or_404, render, redirect
+from django.views.decorators.http import require_POST
 from django.core import serializers
 from django.http import HttpResponse, JsonResponse
 from django.contrib import messages
@@ -61,6 +62,7 @@ def projects(request):
     context = {
             "active_page": "projects",
             **base_context,
+            "form": ProjectForm(),
         }
     return render(request, "main/projects.html", context)
 
@@ -112,6 +114,22 @@ def create_project(request):
         "form": form,
     }
     return render(request, "main/projects_add_form.html", context)
+
+@require_POST
+def create_project_ajax(request):
+    if not request.user.has_perm("main.add_project"):
+        return JsonResponse(
+            {"message": "Only the portfolio owner can add projects."},
+            status=403,
+        )
+
+    form = ProjectForm(request.POST)
+    if form.is_valid():
+        project = form.save()
+        return JsonResponse(
+            {"message": "Project added successfully.", "pk": str(project.id)},
+            status=201,
+        )
 
 @login_required()
 @permission_required('main.change_project', raise_exception=True)
