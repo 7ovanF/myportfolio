@@ -146,13 +146,30 @@
             statusElem.textContent = "An error occured while fetching data."
         }
     }
+    
+    function searchProjects() {
+        fetchProjects(searchInput.value.trim());
+    }
+    
+    const SEARCH_DEBOUNCE_DELAY = 300;
+    let searchDebounceTimer;
+    
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchDebounceTimer);
+
+        searchDebounceTimer = setTimeout(function () {
+                searchProjects()           
+            }, SEARCH_DEBOUNCE_DELAY
+        );
+    });
 
     // Search form event handler
     searchForm.addEventListener('submit', function(e) {
         e.preventDefault(); // Prevent the page from reloading
-        fetchProjects(searchInput.value.trim()); // Run the search via AJAX
+        clearTimeout(searchDebounceTimer);
+        searchProjects();
     });
 
     // Start the application
-    fetchProjects(searchInput.value.trim());
+    searchProjects();
 </script>
