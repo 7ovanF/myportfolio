@@ -1,7 +1,8 @@
 from django.contrib.auth.decorators import permission_required
 from django.shortcuts import get_object_or_404, render, redirect
+from django.views.decorators.http import require_POST
 from django.core import serializers
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
@@ -45,20 +46,13 @@ profile_context = {
 }
 
 def landing_page(request):
-    json_projects = get_projects_json(request)
-    projects = serializers.deserialize(
-            "json",
-            json_projects.content.decode("utf-8"),
-        )
-    projects = [ project.object for project in projects ]
-
     last_login = request.COOKIES.get('last_login', '')
     context = {
             "active_page": "landing_page",
             **base_context, **profile_context,
             "last_login": last_login,
-            "project_list": projects,
-            "experience_list": Experience.objects.all(),
+            "project_form": ProjectForm(),
+            "experience_form": ExperienceForm(),
         }
     return render(request, "main/profile.html", context)
 
@@ -66,30 +60,44 @@ def landing_page(request):
 # PROJECTS 
 # ========
 def projects(request):
-    json_projects = get_projects_json(request)
-    projects = serializers.deserialize(
-            "json",
-            json_projects.content.decode("utf-8"),
-        )
-    projects = [ project.object for project in projects ]
-
     context = {
             "active_page": "projects",
             **base_context,
-            "project_list": projects,
+            "project_form": ProjectForm(),
         }
     return render(request, "main/projects.html", context)
 
 # APIs
 def get_projects_json(request):
     title_query = request.GET.get("title", "").strip()
-    projects = Project.objects.all()
+    # prefetched as recommended by django ORM lens
+    projects = Project.objects.prefetch_related("starred_by").prefetch_related("skills").all()
 
     if title_query:
         projects = projects.filter(title__icontains=title_query)
 
-    projects_json = serializers.serialize("json", projects, use_natural_foreign_keys=True)
-    return HttpResponse(projects_json, content_type="application/json")
+    data = []
+    for project in projects:
+        starred_by = project.starred_by.all()
+        is_starred = request.user in starred_by if request.user.is_authenticated else False
+        skill_titles = [skill.title for skill in project.skills.all()]
+        starred_by_names = [user.username for user in starred_by]
+
+        data.append({
+            "id": str(project.pk),
+            "title": project.title,
+            "url": project.url,
+            "thumbnail": project.thumbnail,
+            "description": project.description,
+            "skill_titles": skill_titles,
+            "star_count": starred_by.count(),
+            "is_starred": is_starred,
+            "starred_by_names": starred_by_names,
+        })
+    response = {
+        "data": data,
+    }
+    return JsonResponse(response, safe=False)
 
 # Forms 
 @login_required()
@@ -107,6 +115,27 @@ def create_project(request):
         "form": form,
     }
     return render(request, "main/projects_add_form.html", context)
+
+@require_POST
+def create_project_ajax(request):
+    if not request.user.has_perm("main.add_project"):
+        return JsonResponse(
+            {"message": "Only the portfolio owner can add projects."},
+            status=403,
+        )
+
+    form = ProjectForm(request.POST)
+    if not form.is_valid():
+        return JsonResponse(
+            {"message": "Form invalid!"},
+            status=400,
+        )
+    
+    project = form.save()
+    return JsonResponse(
+        {"message": "Project added successfully.", "pk": str(project.id)},
+        status=201,
+    )
 
 @login_required()
 @permission_required('main.change_project', raise_exception=True)
@@ -155,30 +184,41 @@ def toggle_project_star(request, project_id):
 # ==========
 # Refer to experience (plural) as experience*s* internally
 def experience(request):
-    json_experiences = get_experiences_json(request)
-    experiences = serializers.deserialize(
-            "json",
-            json_experiences.content.decode("utf-8"),
-        )
-    experiences = [ experience.object for experience in experiences ]
-
     context = {
             "active_page": "experience",
             **base_context,
-            "experience_list": experiences,
+            "experience_form": ExperienceForm(),
         }
     return render(request, "main/experience.html", context)
 
 # APIs
 def get_experiences_json(request):
     title_query = request.GET.get("title", "").strip()
-    experiences = Experience.objects.all()
+    experiences = Experience.objects.prefetch_related("starred_by").all()
 
     if title_query:
         experiences = experiences.filter(title__icontains=title_query)
+    
+    data = []
+    for experience in experiences:
+        is_starred = request.user in experience.starred_by.all()
+        starred_by_names = [starrer.username for starrer in experience.starred_by.all()]
+        data.append({
+            "id": experience.id,
+            "title": experience.title,
+            "description": experience.description,
+            "category": experience.category,
+            "thumbnail": experience.thumbnail,
+            "started_at": experience.started_at,
+            "ended_at": experience.ended_at,
+            "is_starred": is_starred,
+            "starred_by_names": starred_by_names,
+        })
 
-    experiences_json = serializers.serialize("json", experiences, use_natural_foreign_keys=True)
-    return HttpResponse(experiences_json, content_type="application/json")
+    response = {
+        "data": data
+    }
+    return JsonResponse(response, safe=False)
 
 # Forms 
 @login_required()
@@ -196,6 +236,24 @@ def create_experience(request):
         "form": form,
     }
     return render(request, "main/experience_add_form.html", context)
+
+@require_POST
+@login_required()
+@permission_required("main.add_experience", raise_exception=True)
+def create_experience_ajax(request):
+    form = ExperienceForm(request.POST or None)
+
+    if not form.is_valid():
+        return JsonResponse(
+            {"message": "Form invalid!"},
+            status=400,
+        )
+
+    experience = form.save()
+    return JsonResponse(
+        {"message": "Experience added successfully.", "pk": str(experience.pk)},
+        status=201,
+    )
 
 @login_required()
 @permission_required('main.change_experience', raise_exception=True)
@@ -223,10 +281,22 @@ def delete_experience(request, experience_id):
 
     if request.method == "POST":
         experience.delete()
-        messages.success(request, "Experience berhasil dihapus!")
+        messages.success(request, "Successfully deleted experience.")
         return redirect("main:experience")
 
     return redirect("main:experience")
+
+@require_POST
+@login_required()
+@permission_required('main.delete_experience', raise_exception=True)
+def delete_experience_ajax(request, experience_id):
+    experience = get_object_or_404(Experience, pk=experience_id)
+
+    experience.delete()
+    return JsonResponse(
+        {"message": "Successfully deleted experience."},
+        status=200
+    )
 
 @login_required()
 def toggle_experience_star(request, experience_id):

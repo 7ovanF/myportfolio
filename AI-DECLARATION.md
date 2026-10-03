@@ -20,3 +20,8 @@ In some repetitive sections (especially unit tests), complete code is generated 
 - Decorator to check for superuser status: https://chatgpt.com/s/cx_6ab25361eb44819190142dcc4fdf1d81 
 - Auth and star test cases: https://chatgpt.com/s/cx_6ab32e3987b481918c99e476ae4ce87b
 - Permission and experience star test cases: https://chatgpt.com/s/cx_6ab79907503481918571350b1d76b7a0
+- Recommendations on where to put Javascript: https://www.perplexity.ai/search/41eac68f-cd12-485c-a8b6-3f1c94e77060
+- Include Django data to separate js file: https://www.perplexity.ai/search/9e6d2521-6236-44bf-bb3c-e927fe534dfc
+- Date format javascript command: https://www.perplexity.ai/search/6aa43ba9-634f-4528-b141-ab4eb16a8763
+- Javascript pattern to make "blocks": https://www.perplexity.ai/search/51307731-0be1-4f40-8b94-d7275b223f4a
+- Questions + debugging on ajax & HTML escaping: https://chatgpt.com/s/cx_6ac0bac7be288191bb818a6c9367569d
