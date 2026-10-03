@@ -57,13 +57,13 @@
         const descriptionText = project.description
                  ? converter.makeHtml(project.description)
                  : "No description was provided for this project."
-        const descriptionHtml = `<div class="project-desc">${ descriptionText }</div>`
+        const descriptionHtml = `<div class="project-desc">${ escapeHtml(descriptionText) }</div>`
         
         let skillsHtml = "";
         if (project.skill_titles.length != 0) {
             skillsHtml += `<div class="project-skills">`;
             for (let skill_title of project.skill_titles) {
-                skillsHtml += `<a class="button project-skill-btn">${ slugify(skill_title) }</a>`;
+                skillsHtml += `<a class="button project-skill-btn">${ slugify(escapeHtml(skill_title)) }</a>`;
             }
             skillsHtml += `</div>`;
         }
@@ -71,7 +71,7 @@
         const isStarredClass = project.is_starred ? " is-starred" : "";
         const starText = project.is_starred ? "Unstar" : "Star";
         const starTitle = project.star_count > 0 
-            ? `Starred by ${project.starred_by_names}` 
+            ? `Starred by ${escapeHtml(project.starred_by_names.join(", "))}` 
             : "Be the first to star";
         const starUrl = "{% url 'main:toggle_project_star' '00000000-0000-0000-0000-000000000000' %}"
             .replace('00000000-0000-0000-0000-000000000000', project.id);

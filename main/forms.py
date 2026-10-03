@@ -1,4 +1,6 @@
 from django.forms import ModelForm, TextInput, Textarea, URLInput, SelectMultiple, DateInput
+from django.utils.html import strip_tags
+from django.core.exceptions import ValidationError
 
 from main.models import Project, Experience
 
@@ -50,6 +52,16 @@ class ProjectForm(ModelForm):
                 }
             ),
         }
+    
+    def clean_title(self):
+        title = strip_tags(self.cleaned_data["title"]).strip()
+        if not title:
+            raise ValidationError("You think I don't know what you're doin??")
+        return title
+
+    def clean_description(self):
+        description = strip_tags(self.cleaned_data["description"]).strip()
+        return description
 
 class ExperienceForm(ModelForm):
     class Meta:
@@ -101,3 +113,24 @@ class ExperienceForm(ModelForm):
                 }
             )
         }
+    
+    def clean_title(self):
+        title = strip_tags(self.cleaned_data["title"]).strip()
+        if not title:
+            raise ValidationError("You think I don't know what you're doin??")
+        return title
+
+    def clean_description(self):
+        description = strip_tags(self.cleaned_data["description"]).strip()
+        return description
+
+class SkillForm(ModelForm):
+    def clean_title(self):
+        title = strip_tags(self.cleaned_data["title"]).strip()
+        if not title:
+            raise ValidationError("You think I don't know what you're doin??")
+        return title
+
+    def clean_description(self):
+        description = strip_tags(self.cleaned_data["description"]).strip()
+        return description
