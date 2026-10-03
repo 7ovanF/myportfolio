@@ -160,15 +160,24 @@
         }
     }
     
+    const SEARCH_DEBOUNCE_DELAY = 300;
+    let searchDebounceTimer;
+
     function searchExperiences() {
+        clearTimeout(searchDebounceTimer);
         fetchExperiences(searchInput.value.trim())
     }
-    
-    console.log(searchForm)
+       
+    searchInput.addEventListener('input', function(e) {
+        searchDebounceTimer = setTimeout(function() {
+            searchExperiences();
+        }, SEARCH_DEBOUNCE_DELAY);
+    });
+     
     searchForm.addEventListener('submit', function(e) {
         e.preventDefault();
         searchExperiences();
     })
-    
+
     searchExperiences();
 </script>
