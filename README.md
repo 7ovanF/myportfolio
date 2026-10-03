@@ -97,6 +97,27 @@ python manage.py runserver
 ### Jawaban Refleksi
 wait... theres none for this week
 
+## Tugas 5
+### Notes
+Saya juga menambahkan fitur ajax-based deletion.
+
+### Jawaban Refleksi
+#### Explain what debouncing is and why this technique is important to implement in a search feature that uses AJAX.
+https://www.geeksforgeeks.org/javascript/debouncing-in-javascript/ :
+> Debouncing is a JavaScript technique used to control how often a function executes during rapidly triggered events. It ensures better performance by delaying execution until user activity has stopped for a defined time.
+
+In the case of a search function, it evidently doesn't need an automatic trigger as much as other features (since the user can just press enter when they're done giving input), but it increases the interactivity of the website and completely leverages the advantage of having AJAX for the search system.
+
+The event trigger must have a delay, though; without a set delay, every keypress would trigger the AJAX request, flooding the server needlessly.
+
+#### Explain the purpose of using await when we use fetch(). What would happen if we did not use await?
+`fetch()` returns a `Promise`-wrapped `Response` object. In practice, interacting with `fetch()`'s return value without `await` means interacting with an unresolved `Promise` object, not the `Response` object itself, which leads to failure in the program (e.g. trying to parse it with `json()`, or in my case yesterday, trying to process un-awaited `json()` output).
+
+#### Explain what a Cross-Site Scripting (XSS) attack is and why data displayed through AJAX/JavaScript is more vulnerable to this attack than data displayed directly through a Django template.
+**Cross-Site Scripting** is an attack that abuses HTML DOM properties to trigger malicious scripts (especially `fetch()`) on the client side. When escaping AJAX-served values, we're preventing *stored* XSS, where a stored value contains said script and would trigger upon render.
+
+Django, as a framework, provides automatic HTML escaping when rendering with its template engine, while Javascript is more raw and does not handle it automatically.
+
 ---
 
 AI declaration in [AI-DECLARATION.md](AI-DECLARATION.md)
