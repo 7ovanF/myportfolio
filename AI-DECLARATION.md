@@ -23,3 +23,4 @@ In some repetitive sections (especially unit tests), complete code is generated 
 - Recommendations on where to put Javascript: https://www.perplexity.ai/search/41eac68f-cd12-485c-a8b6-3f1c94e77060
 - Include Django data to separate js file: https://www.perplexity.ai/search/9e6d2521-6236-44bf-bb3c-e927fe534dfc
 - Date format javascript command: https://www.perplexity.ai/search/6aa43ba9-634f-4528-b141-ab4eb16a8763
+- Javascript pattern to make "blocks": https://www.perplexity.ai/search/51307731-0be1-4f40-8b94-d7275b223f4a
