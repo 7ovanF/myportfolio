@@ -4,10 +4,15 @@
     <div class="container container-boxed">
         <div class="section-header">
             <h2 class="section-title">experience <span class="command-option">--featured</span></h2>
-<!--             {% url "main:create_experience" as create_form_url %}
             {% if perms.main.add_experience %}
-                {% include "main/components/_form_add_button.html" with label="Add Experience" url=create_form_url%}
-            {% endif %} broken for now-->
+                <button type="button"
+                        class="button form-add-button"
+                        popovertarget="add-experience-modal">
+                    <span aria-hidden="true">+</span>
+                    Add Experience
+                </button>
+                {# terrible structure #}
+                {% include "main/components/_add_experience_modal.html" %} {% endif %}
         </div>
         {% include "main/components/_form_search.html" with section_name="experience" %}
 
@@ -58,7 +63,6 @@
                 <span class="experience-status-runtime">
                     for ${timeSince(experience.started_at, experience.ended_at)}
                 </span>`;
-        // TODO: recheck this
 
         let detailsHtml = `
         <dl class="experience-details">
@@ -117,6 +121,18 @@
                 ${deleteHtml}
             </div>`;
 
+        
+        // add event listener for delete button upon loading html
+        const deleteForm = articleElement.querySelector(".experience-card__form--delete");
+
+        deleteForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (!window.confirm("u sure?")) {
+                return;
+            }
+            deleteExperience(e.target);
+        });
+
         return articleElement;
     }
     
@@ -161,6 +177,7 @@
         }
     }
     
+    // === Search w/ debouncing ===
     const SEARCH_DEBOUNCE_DELAY = 300;
     let searchDebounceTimer;
 
@@ -180,6 +197,84 @@
         searchExperiences();
     })
 
+    // === Add experience form ===
+    const ADD_EXPERIENCE_ENDPOINT = '{% url "main:create_experience_ajax" %}';
+    const addExperienceForm = document.getElementById("experience-form");
+    
+    async function addExperience() {
+        const addExperienceSubmitButton = addExperienceForm.querySelector("button[type='submit']");
+        const addExperienceModal = document.getElementById("add-experience-modal");
+        addExperienceSubmitButton.disabled = true;
+        try {
+            const response = await fetch(ADD_EXPERIENCE_ENDPOINT, {
+                method: 'POST',
+                headers: { "X-CSRFToken": getCookie('csrftoken') },
+                body: new FormData(addExperienceForm)
+            });
+            const result = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                const errorMessages = result.errors
+                    ? Object.values(result.errors).flat().map(error => error.message)
+                    : [result.message || `Something went wrong (status ${response.status}).`];
+                showToast('Failed to add experience', errorMessages.join(' '), 'error');
+            } else {
+                showToast("Success", "Experience added successfully!", "success");
+                addExperienceForm.reset();
+                addExperienceModal.hidePopover();
+                searchExperiences();
+            }
+        } catch(error) {
+            console.error('Error adding experience:', error);
+            showToast('Failed to add experience', 'Could not reach the server. Please try again.', 'error');
+        } finally {
+            addExperienceSubmitButton.disabled = false;
+        }
+    }
+    
+    if (addExperienceForm) {
+        addExperienceForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            addExperience();
+        });
+    }
+
     searchExperiences();
+    
+    // === Delete via Ajax ===
+    const DELETE_EXPERIENCE_ENDPOINT = 
+        "{% url 'main:delete_experience_ajax' '00000000-0000-0000-0000-000000000000' %}"
+
+    async function deleteExperience(formElem) {
+        const deleteExperienceButton = formElem.querySelector("button[type='submit']");
+        const experienceId = formElem.elements.experience_id.value;
+        const deleteUrl = DELETE_EXPERIENCE_ENDPOINT
+            .replace('00000000-0000-0000-0000-000000000000', experienceId);
+        
+        try {
+            deleteExperienceButton.disabled = true;
+            const response = await fetch(deleteUrl, {
+                method: "POST",
+                headers: { "X-CSRFToken": getCookie("csrftoken") },
+            });
+            
+            const result = await response.json().catch(() => ({}))
+            
+            if (!response.ok) {
+                const errorMessages = result.errors
+                    ? Object.values(result.errors).flat().map(error => error.message)
+                    : [result.message || `Error: something went wrong (status ${response.status}).`];
+                showToast("Error", "Something went wrong: " + errorMessages.join(", "), "error");
+            } else {
+                showToast("Success", "Successfully deleted experience.", "success");
+                searchExperiences();
+            }
+        } catch (error) {
+            console.error('Error deleting experience:', error);
+            showToast('Failed to delete experience', 'Could not reach the server. Please try again.', 'error');
+        } finally {
+            if (deleteExperienceButton) deleteExperienceButton.disabled = false;
+        }
+    }
 }) ();
 </script>

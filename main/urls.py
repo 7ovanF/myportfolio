@@ -17,6 +17,8 @@ urlpatterns = [
 
     path('experience', views.experience, name="experience"),
     path('experience/add', views.create_experience, name="create_experience"),
+    path('experience/add-ajax', views.create_experience_ajax, name="create_experience_ajax"),
+    path('experience/<uuid:experience_id>/delete-ajax', views.delete_experience_ajax, name="delete_experience_ajax"),
     path('experience/<uuid:experience_id>/star', views.toggle_experience_star, name="toggle_experience_star"),
     path('experience/<uuid:experience_id>/edit', views.update_experience, name="update_experience"),
     path("experience/<uuid:experience_id>/delete", views.delete_experience, name="delete_experience"),
