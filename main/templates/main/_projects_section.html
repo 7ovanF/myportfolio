@@ -55,9 +55,9 @@
 
         const converter = new showdown.Converter()
         const descriptionText = project.description
-                 ? converter.makeHtml(project.description)
+                 ? converter.makeHtml(escapeHtml(project.description))
                  : "No description was provided for this project."
-        const descriptionHtml = `<div class="project-desc">${ escapeHtml(descriptionText) }</div>`
+        const descriptionHtml = `<div class="project-desc">${ descriptionText }</div>`
         
         let skillsHtml = "";
         if (project.skill_titles.length != 0) {
