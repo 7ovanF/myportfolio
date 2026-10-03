@@ -1,5 +1,5 @@
 {# reusable experience section for any page. #}
-{% load markdownify %}
+{% load static %}
 <section class="experience" id="experience">
     <div class="container container-boxed">
         <div class="section-header">
@@ -9,70 +9,166 @@
                 {% include "main/components/_form_add_button.html" with label="Add Experience" url=create_form_url%}
             {% endif %} broken for now-->
         </div>
-<!--         {% url 'main:experience' as search_action %}
-        {% include "main/components/_form_search.html" with search_action=search_action %} -->
+        {% include "main/components/_form_search.html" with section_name="experience" %}
 
-        <div class="experience-cards">
-            {% for experience in experience_list %}
-                <article class="experience-card">
-                    <h3 class="experience-title">
-                        <span class="experience-bullet-point">&#x25CF;</span>
-                        <span class="experience-category">
-                            {{experience.title|truncatewords:2|slugify }}.{{ experience.category|slugify }} -
-                        </span>
-                        {{ experience.title }}
-                    </h3>
-                    <dl class="experience-details">
-                        <div class="experience-details-section">
-                            <dt>Docs</dt>
-                            <dd>{{ experience.description|markdownify:"description" }}</dd>
-                        </div>
-
-                        {# the django docs is very convenient, there are millions of template filters #}
-                        <div class="experience-details-section">
-                            <dt>Active</dt>
-                            <dd>
-                                {% if experience.is_ongoing %}
-                                    <span class="experience-status-active">active (running)</span>
-                                    since <span class="experience-status-date">
-                                        {{ experience.started_at|date:"D, d M Y" }}</span>;
-
-                                    <span class="experience-status-runtime">
-                                        {{ experience.started_at|timesince }} ago
-                                    </span>
-                                {% else %}
-                                    <span class="experience-status-inactive">inactive (dead)</span>
-                                    from <span class="experience-status-date">
-                                        {{ experience.started_at|date:"D, d M Y" }}
-                                    </span>
-                                    until <span class="experience-status-date">
-                                        {{ experience.ended_at|date:"D, d M Y" }}</span>;
-
-                                    <span class="experience-status-runtime">
-                                        for {{experience.started_at|timesince:experience.ended_at }}
-                                    </span>
-                                {% endif %}
-                            </dd>
-                        </div>
-                    </dl>
-                    <!-- {% url 'main:toggle_experience_star' experience.id as star_action%}
-                   {% include "main/components/_form_star.html" with form_action=star_action starred_by=experience.starred_by %} -->
-<!--                     <div class="form-modify-entry-buttons">
-                        {% if perms.main.change_experience %}
-                            {% url "main:update_experience" experience.id as update_form_url %}
-                            {% include "main/components/_form_edit_button.html" with label="Edit experience" url=update_form_url %}
-                        {% endif %}
-                        {% if perms.main.delete_experience %}
-                            {% url 'main:delete_experience' experience.id as delete_form_action%}
-                            {% include "main/components/_form_delete_modal.html" with label="Delete experience" target_id=experience.id target_title=experience.title form_action=delete_form_action %}
-                        {% endif %}
-                    </div> -->
-                </article>
-            {% empty %}
-                <p class="empty-state">
-                    You could say this guy is... inexperienced
-                </p>
-            {% endfor %}
-        </div>
+        <div id="experience-status" class="experience-status"></div>
+        <div id="experience-cards" class="experience-cards"></div>
     </div>
 </section>
+<script src="{% static "js/helpers.js" %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/showdown@2.1.0/dist/showdown.min.js"></script>
+<script>
+    // Configuration
+    const GET_EXPERIENCE_ENDPOINT = "{% url 'main:get_experiences_json' %}";
+    const CAN_ADD = "{{ perms.main.add_experience|yesno:'true,false' }}" === "true";
+    const CAN_EDIT = "{{ perms.main.change_experience|yesno:'true,false' }}" === "true";
+    const CAN_DELETE = "{{ perms.main.delete_experience|yesno:'true,false' }}" === "true";
+    let experienceAbortController;
+
+    function buildExperienceCardElement(experience) {
+        let articleElement = document.createElement("article");
+        articleElement.classList.add("experience-card")
+         
+        let titleHtml = `
+            <h3 class="experience-title">
+                <span class="experience-bullet-point">&#x25CF;</span>
+                            <span class="experience-category">
+                        ${slugify(truncateToFirstWords(experience.title, 2))}.${slugify(experience.category)} -
+                    </span>
+                    ${experience.title}
+            </h3>`;
+
+        const converter = new showdown.Converter()
+        let experienceStatus = !experience.ended_at
+            ? `<span class="experience-status-active">active (running)</span>
+                since <span class="experience-status-date">
+                ${formatDate(experience.started_at)}</span>;
+
+                <span class="experience-status-runtime">
+                    ${timeSince(experience.started_at)} ago
+                </span>`
+            : `<span class="experience-status-inactive">inactive (dead)</span>
+                from <span class="experience-status-date">
+                    ${formatDate(experience.started_at)}
+                </span>
+                until <span class="experience-status-date">
+                    ${formatDate(experience.ended_at)}</span>;
+
+                <span class="experience-status-runtime">
+                    for ${timeSince(experience.started_at, experience.ended_at)}
+                </span>`;
+        // TODO: recheck this
+
+        let detailsHtml = `
+        <dl class="experience-details">
+            <div class="experience-details-section">
+                <dt>Docs</dt>
+                <dd>${experience.description
+                    ? converter.makeHtml(experience.description)
+                    : "No description was provided."}</dd>
+            </div>
+
+            <div class="experience-details-section">
+                <dt>Active</dt>
+                <dd>${experienceStatus}</dd>
+            </div>
+        </dl>`;
+
+        const isStarredClass = experience.is_starred ? " is-starred" : "";
+        const starText = experience.is_starred ? "Unstar" : "Star";
+        const starTitle = experience.starred_by_names.length > 0 
+            ? `Starred by ${experience.starred_by_names.join(", ")}` 
+            : "Be the first to star";
+        const starUrl = "{% url 'main:toggle_experience_star' '00000000-0000-0000-0000-000000000000' %}"
+            .replace('00000000-0000-0000-0000-000000000000', experience.id);
+        const starHtml = 
+            `<form method="post" action="${ starUrl }" class="star-form">
+                {% csrf_token %}
+                <button type="submit"
+                        class="button button-star${ isStarredClass }"
+                        title="${starTitle}">
+                    <span aria-hidden="true">★</span> ${starText}
+                    <span class="star-count">${ experience.starred_by_names.length }</span>
+                </button>
+            </form>`;
+
+               
+        const EDIT_URL = "{% url 'main:update_experience' '00000000-0000-0000-0000-000000000000' %}"
+            .replace("00000000-0000-0000-0000-000000000000", experience.id)
+        let editHtml = CAN_EDIT
+            ? `<a href="${ EDIT_URL }" class="button form-update-button">Edit Experience</a>`
+            : '';
+ 
+        let deleteHtml = CAN_DELETE
+            ? `<form class="experience-card__form--delete">
+                    <input hidden name="experience_id" value="${experience.id}">
+                    <button type="submit" class="button button-danger">Delete Experience</button>
+            </form>`
+            : '';
+
+
+        articleElement.innerHTML = `
+            ${titleHtml}
+            ${detailsHtml}
+            ${starHtml}
+            <div class="form-modify-entry-buttons">
+                ${editHtml}
+                ${deleteHtml}
+            </div>`;
+
+        return articleElement;
+    }
+    
+    const statusElem = document.getElementById("experience-status");
+    const listContainerElem = document.getElementById("experience-cards");
+    const searchForm = document.getElementById('experience-form-search');
+    const searchInput = document.getElementById('experience-form-search-input');
+    
+    async function fetchExperiences(searchQuery = "") {
+        if (experienceAbortController) experienceAbortController.abort();
+        experienceAbortController = new AbortController();
+        
+        try {
+            listContainerElem.innerHTML = "";
+            statusElem.textContent = "Loading...";
+
+            const url = searchQuery
+                ? `${GET_EXPERIENCE_ENDPOINT}?title=${encodeURIComponent(searchQuery)}`
+                : GET_EXPERIENCE_ENDPOINT;
+
+            response = await fetch(url, {
+                headers: { "Accept": "application/json" },
+                signal: experienceAbortController.signal,
+            });
+            
+            if (!response.ok) throw new Error("Failed to fetch data!");
+
+            data = (await response.json()).data;
+            
+            if (data.length === 0) {
+                statusElem.textContent = "You could say this guy is... inexperienced";
+            } else {
+                statusElem.textContent = "";
+                data.forEach(experience => {
+                    listContainerElem.appendChild(buildExperienceCardElement(experience));
+                })
+            }
+        } catch (error) {
+            if (error.name == 'AbortError') return;
+            console.error('Error loading experience:', error);
+            statusElem.textContent = "An error occured while fetching data."
+        }
+    }
+    
+    function searchExperiences() {
+        fetchExperiences(searchInput.value.trim())
+    }
+    
+    console.log(searchForm)
+    searchForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        searchExperiences();
+    })
+    
+    searchExperiences();
+</script>

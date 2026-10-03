@@ -178,30 +178,40 @@ def toggle_project_star(request, project_id):
 # ==========
 # Refer to experience (plural) as experience*s* internally
 def experience(request):
-    json_experiences = get_experiences_json(request)
-    experiences = serializers.deserialize(
-            "json",
-            json_experiences.content.decode("utf-8"),
-        )
-    experiences = [ experience.object for experience in experiences ]
-
     context = {
             "active_page": "experience",
             **base_context,
-            "experience_list": experiences,
         }
     return render(request, "main/experience.html", context)
 
 # APIs
 def get_experiences_json(request):
     title_query = request.GET.get("title", "").strip()
-    experiences = Experience.objects.all()
+    experiences = Experience.objects.prefetch_related("starred_by").all()
 
     if title_query:
         experiences = experiences.filter(title__icontains=title_query)
+    
+    data = []
+    for experience in experiences:
+        is_starred = request.user in experience.starred_by.all()
+        starred_by_names = [starrer.username for starrer in experience.starred_by.all()]
+        data.append({
+            "id": experience.id,
+            "title": experience.title,
+            "description": experience.description,
+            "category": experience.category,
+            "thumbnail": experience.thumbnail,
+            "started_at": experience.started_at,
+            "ended_at": experience.ended_at,
+            "is_starred": is_starred,
+            "starred_by_names": starred_by_names,
+        })
 
-    experiences_json = serializers.serialize("json", experiences, use_natural_foreign_keys=True)
-    return HttpResponse(experiences_json, content_type="application/json")
+    response = {
+        "data": data
+    }
+    return JsonResponse(response, safe=False)
 
 # Forms 
 @login_required()
