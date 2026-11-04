@@ -25,3 +25,4 @@ In some repetitive sections (especially unit tests), complete code is generated 
 - Date format javascript command: https://www.perplexity.ai/search/6aa43ba9-634f-4528-b141-ab4eb16a8763
 - Javascript pattern to make "blocks": https://www.perplexity.ai/search/51307731-0be1-4f40-8b94-d7275b223f4a
 - Questions + debugging on ajax & HTML escaping: https://chatgpt.com/s/cx_6ac0bac7be288191bb818a6c9367569d
+- Slug field list as input in forms to submit to the create API: https://www.perplexity.ai/search/89897fa6-eac1-4092-a862-393ab04a38dd

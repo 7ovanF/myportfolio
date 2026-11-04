@@ -181,10 +181,10 @@
     searchProjects();
     
     // === Modal Form =
-    const CREATE_PROJECT_ENDPOINT = "{% url 'main:create_project_ajax' %}";
     const projectForm = document.getElementById('project-form');
 
     // Send the form data to the server
+    // Tutorial 6 notes: operasi update belum AJAX jadi saya cuman bikin buat create
     async function addProject(event) {
         event.preventDefault();
 
@@ -192,7 +192,7 @@
         submitButton.disabled = true;
 
         try {
-            const response = await fetch(CREATE_PROJECT_ENDPOINT, {
+            const response = await fetch(BASE_PROJECTS_ENDPOINT, {
                 method: 'POST',
                 headers: { 'X-CSRFToken': getCookie('csrftoken') },
                 body: new FormData(projectForm),

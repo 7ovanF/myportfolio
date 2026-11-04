@@ -1,10 +1,16 @@
-from django.forms import ModelForm, TextInput, Textarea, URLInput, SelectMultiple, DateInput
+from django.forms import ModelForm, TextInput, Textarea, URLInput, SelectMultiple, DateInput,\
+        ModelMultipleChoiceField
 from django.utils.html import strip_tags
 from django.core.exceptions import ValidationError
 
-from main.models import Project, Experience
+from main.models import Project, Experience, Skill
 
 class ProjectForm(ModelForm):
+    skill_slugs = ModelMultipleChoiceField(
+            queryset=Skill.objects.all(),
+            to_field_name="title_slug",
+            widget=SelectMultiple()
+            )
     class Meta:
         model = Project
         fields = [
@@ -12,7 +18,7 @@ class ProjectForm(ModelForm):
             "url",
             "thumbnail",
             "description",
-            "skills",
+            "skill_slugs",
         ]
 
         labels = {
@@ -20,7 +26,7 @@ class ProjectForm(ModelForm):
             "url": "URL to Project",
             "description": "Project Description",
             "thumbnail": "Thumbnail URL",
-            "skills": "Related skills",
+            "skill_slugs": "Related skills",
         }
 
         widgets = {
@@ -46,11 +52,11 @@ class ProjectForm(ModelForm):
                     "rows": 5,
                 }
             ),
-            "skills": SelectMultiple(
-                attrs={
-                    "placeholder": "Django",
-                }
-            ),
+            # "skills": SelectMultiple(
+            #     attrs={
+            #         "placeholder": "Django",
+            #     }
+            # ),
         }
     
     def clean_title(self):
