@@ -5,6 +5,9 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
 
 from .models import Project, Experience
 from .forms import ProjectForm, ExperienceForm
@@ -44,10 +47,21 @@ profile_context = {
     ],
 }
 
+# izin menggunakan implementasi ModelViewSet, semoga boleh
 class ProjectViewSet(ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     # just use default permission_classes and authentication_classes (settings.py)
+
+    @action(methods=['post'], detail=True, permission_classes=[IsAuthenticated],
+            url_path='toggle_star', url_name='toggle_star')
+    def toggle_star(self, request, pk):
+        project = self.get_object()
+        if request.user in project.starred_by.all():
+            project.starred_by.remove(request.user)
+        else:
+            project.starred_by.add(request.user)
+        return Response(ProjectSerializer(instance=project, context={"request": request}).data)
 
 def landing_page(request):
     last_login = request.COOKIES.get('last_login', '')
