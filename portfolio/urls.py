@@ -30,6 +30,7 @@ urlpatterns = [
     path("logout/", logout_user, name="logout"),
     path('register', register, name="register"),
     path('favicon.ico', favicon, name="favicon"),
+    path('api/v1', include("portfolio.api_urls")),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

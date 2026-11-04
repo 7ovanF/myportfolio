@@ -1,15 +1,14 @@
 from django.contrib.auth.decorators import permission_required
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views.decorators.http import require_POST
-from django.core import serializers
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse_lazy
-from portfolio.decorators import superuser_required
+from rest_framework.viewsets import ModelViewSet
 
 from .models import Project, Experience
 from .forms import ProjectForm, ExperienceForm
+from .serializers import ProjectSerializer
 
 # fix from https://www.perplexity.ai/search/5b78a4ab-e9fe-454e-ba49-ff7122f099a2
 base_context = {
@@ -44,6 +43,11 @@ profile_context = {
         }
     ],
 }
+
+class ProjectViewSet(ModelViewSet):
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    # just use default permission_classes and authentication_classes (settings.py)
 
 def landing_page(request):
     last_login = request.COOKIES.get('last_login', '')

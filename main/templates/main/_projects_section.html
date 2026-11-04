@@ -28,7 +28,7 @@
 <script>
 (() => {
     // Configuration
-    const BASE_PROJECTS_ENDPOINT = "{% url 'main:get_projects_json' %}";
+    const BASE_PROJECTS_ENDPOINT = "{% url 'api:project-list' %}";
     const CAN_ADD = "{{ perms.main.add_project|yesno:'true,false' }}" === "true";
     const CAN_EDIT = "{{ perms.main.change_project|yesno:'true,false' }}" === "true";
     const CAN_DELETE = "{{ perms.main.delete_project|yesno:'true,false' }}" === "true";
@@ -60,10 +60,10 @@
         const descriptionHtml = `<div class="project-desc">${ descriptionText }</div>`
         
         let skillsHtml = "";
-        if (project.skill_titles.length != 0) {
+        if (project.skill_slugs.length != 0) {
             skillsHtml += `<div class="project-skills">`;
-            for (let skill_title of project.skill_titles) {
-                skillsHtml += `<a class="button project-skill-btn">${ slugify(escapeHtml(skill_title)) }</a>`;
+            for (let skill_slug of project.skill_slugs) {
+                skillsHtml += `<a class="button project-skill-btn">${ escapeHtml(skill_slug) }</a>`;
             }
             skillsHtml += `</div>`;
         }
@@ -137,7 +137,7 @@
 
             if (!response.ok) throw new Error('Failed to fetch data');
 
-            const data = (await response.json()).data;
+            const data = await response.json();
 
             if (data.length === 0) {
                 statusElem.textContent = "No projects were found!"

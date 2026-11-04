@@ -1,10 +1,11 @@
 import uuid
 from django.db import models
+from django.utils.text import slugify
 from django.contrib.auth.models import User
 
 class Project(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, unique=True)
     url = models.URLField(blank=True, null=True)
     thumbnail = models.URLField(blank=True, null=True, help_text="16:9 pls")
     description = models.TextField(blank=True, help_text="Write in Markdown!")
@@ -23,12 +24,18 @@ class Skill(models.Model):
         ('advanced', 'Advanced'),
     ]
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, unique=True)
+    title_slug = models.CharField(max_length=255, unique=True) # auto-determined, not available in forms`
     description = models.TextField(blank=True, help_text="Write in Markdown!")
     proficiency = models.CharField(max_length=20, choices=PROFICIENCY_LEVELS, default='experienced')
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        self.title_slug = slugify(self.title)
+        self.validate_unique()
+        super().save(*args, **kwargs)
 
 class Experience(models.Model):
     EXPERIENCE_CHOICES = [
