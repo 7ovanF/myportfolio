@@ -13,6 +13,9 @@
                 </button>
                 {# terrible structure #}
                 {% include "main/components/_add_experience_modal.html" %} {% endif %}
+            {% if perms.main.change_experience %}
+                {% include "main/components/_edit_experience_modal.html" %}
+            {% endif %}
         </div>
         {% include "main/components/_form_search.html" with section_name="experience" %}
 
@@ -118,7 +121,7 @@
         const EDIT_URL = "{% url 'main:update_experience' '00000000-0000-0000-0000-000000000000' %}"
             .replace("00000000-0000-0000-0000-000000000000", experience.id)
         let editHtml = CAN_EDIT
-            ? `<a href="${ EDIT_URL }" class="button form-update-button">Edit Experience</a>`
+            ? `<a href="${ EDIT_URL }" class="button form-update-button" data-experience-id="${experience.id}">Edit Experience</a>`
             : '';
  
         let deleteHtml = CAN_DELETE
@@ -139,6 +142,9 @@
             </div>`;
 
         articleElement.querySelector('.button-star').addEventListener('click', toggleExperienceStar);
+
+        const editButton = articleElement.querySelector('.form-update-button');
+        if (editButton) editButton.addEventListener('click', openEditExperienceModal);
 
         
         // add event listener for delete button upon loading html
@@ -298,6 +304,94 @@
         addExperienceForm.addEventListener('submit', function(e) {
             e.preventDefault();
             addExperience();
+        });
+    }
+
+    // === Edit experience form ===
+    const editExperienceForm = document.getElementById('edit-experience-form');
+    const editExperienceModal = document.getElementById('edit-experience-modal');
+    let editingExperienceId = null;
+
+    if (editExperienceForm) {
+        editExperienceForm.querySelectorAll('[id]').forEach(field => {
+            field.id = `edit-${field.id}`;
+        });
+    }
+
+    function setEditFormValues(experience) {
+        for (const [fieldName, value] of Object.entries(experience)) {
+            const field = editExperienceForm.elements.namedItem(fieldName);
+            if (!field || typeof field === 'object' && 'length' in field && !('value' in field)) continue;
+            field.value = value ?? '';
+        }
+    }
+
+    async function openEditExperienceModal(event) {
+        event.preventDefault();
+        const experienceId = event.currentTarget.dataset.experienceId;
+        const detailUrl = EXPERIENCE_DETAIL_ENDPOINT
+            .replace('00000000-0000-0000-0000-000000000000', experienceId);
+
+        try {
+            const response = await fetch(detailUrl, { headers: { Accept: 'application/json' } });
+            if (!response.ok) throw new Error(`Request failed with status ${response.status}.`);
+
+            setEditFormValues(await response.json());
+            editingExperienceId = experienceId;
+            editExperienceModal.showPopover();
+        } catch (error) {
+            console.error('Error loading experience for editing:', error);
+            showToast('Could not load experience', 'Please try again.', 'error');
+        }
+    }
+
+    function formatApiErrors(result, status) {
+        if (result && typeof result === 'object') {
+            const messages = Object.values(result).flatMap(value =>
+                Array.isArray(value) ? value : [value]
+            ).map(value => typeof value === 'object' ? value.message : value).filter(Boolean);
+            if (messages.length) return messages.join(' ');
+        }
+        return `Something went wrong (status ${status}).`;
+    }
+
+    async function updateExperience() {
+        if (!editingExperienceId) return;
+
+        const submitButton = editExperienceForm.querySelector("button[type='submit']");
+        const detailUrl = EXPERIENCE_DETAIL_ENDPOINT
+            .replace('00000000-0000-0000-0000-000000000000', editingExperienceId);
+        submitButton.disabled = true;
+
+        try {
+            const response = await fetch(detailUrl, {
+                method: 'PUT',
+                headers: { 'X-CSRFToken': getCookie('csrftoken') },
+                body: new FormData(editExperienceForm),
+            });
+            const result = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                showToast('Failed to update experience', formatApiErrors(result, response.status), 'error');
+                return;
+            }
+
+            showToast('Success', 'Experience updated successfully!', 'success');
+            editExperienceModal.hidePopover();
+            editingExperienceId = null;
+            searchExperiences();
+        } catch (error) {
+            console.error('Error updating experience:', error);
+            showToast('Failed to update experience', 'Could not reach the server. Please try again.', 'error');
+        } finally {
+            submitButton.disabled = false;
+        }
+    }
+
+    if (editExperienceForm) {
+        editExperienceForm.addEventListener('submit', event => {
+            event.preventDefault();
+            updateExperience();
         });
     }
 

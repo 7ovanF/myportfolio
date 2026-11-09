@@ -29,3 +29,4 @@ In some repetitive sections (especially unit tests), complete code is generated 
 - Debugging failing tests: https://chatgpt.com/s/cx_6af17df0036c8191820e37ccd11c496f
 - Router without viewset, permissions on function-based api_view: https://chatgpt.com/share/6af18b14-ca34-83ec-8121-148b8b9ebc1f
 - Star into AJAX: https://chatgpt.com/s/cx_6af1923153f081919af84d931d831728
+- Expeience edit form with AJAX: https://chatgpt.com/s/cx_6af1a774035481918072cee67422d83e
