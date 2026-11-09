@@ -43,7 +43,9 @@
 <script>
 (() => {
     // Configuration
-    const BASE_PROJECTS_ENDPOINT = "{% url 'api:project-list' %}";
+    const PROJECTS_BASE_ENDPOINT = "{% url 'api:project-list' %}";
+    const PROJECT_TOGGLE_STAR_ENDPOINT = "{% url 'api:project-toggle_star' '00000000-0000-0000-0000-000000000000' %}";
+    const LOGIN_URL = "{% url 'login_user' %}"
     const CAN_ADD = "{{ perms.main.add_project|yesno:'true,false' }}" === "true";
     const CAN_EDIT = "{{ perms.main.change_project|yesno:'true,false' }}" === "true";
     const CAN_DELETE = "{{ perms.main.delete_project|yesno:'true,false' }}" === "true";
@@ -88,18 +90,18 @@
         const starTitle = project.star_count > 0 
             ? `Starred by ${escapeHtml(project.starred_by_names.join(", "))}` 
             : "Be the first to star";
-        const starUrl = "{% url 'main:toggle_project_star' '00000000-0000-0000-0000-000000000000' %}"
+        const starUrl = PROJECT_TOGGLE_STAR_ENDPOINT
             .replace('00000000-0000-0000-0000-000000000000', project.id);
         const starHtml = 
-            `<form method="post" action="${ starUrl }" class="star-form">
-                {% csrf_token %}
-                <button type="submit"
+            `<div class="star-form">
+                <button type="button"
                         class="button button-star${ isStarredClass }"
+                        data-star-url="${ starUrl }"
                         title="${starTitle}">
-                    <span aria-hidden="true">★</span> ${starText}
+                    <span aria-hidden="true">★</span> <span class="star-label">${starText}</span>
                     <span class="star-count">${ project.star_count }</span>
                 </button>
-            </form>`;
+            </div>`;
 
         const editUrl = "{% url 'main:update_project' '00000000-0000-0000-0000-000000000000' %}"
             .replace('00000000-0000-0000-0000-000000000000', project.id);
@@ -131,7 +133,48 @@
         `;
 
         articleElement.innerHTML = completeCardHtml;
+        articleElement.querySelector('.button-star').addEventListener('click', toggleProjectStar);
         return articleElement;
+    }
+
+    function updateProjectStarButton(button, project) {
+        button.classList.toggle('is-starred', project.is_starred);
+        button.title = project.star_count > 0
+            ? `Starred by ${project.starred_by_names.join(', ')}`
+            : 'Be the first to star';
+        button.querySelector('.star-label').textContent = project.is_starred ? 'Unstar' : 'Star';
+        button.querySelector('.star-count').textContent = project.star_count;
+    }
+
+    async function toggleProjectStar(event) {
+        const button = event.currentTarget;
+        button.disabled = true;
+
+        try {
+            const response = await fetch(button.dataset.starUrl, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+            });
+            const project = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    window.location.assign(LOGIN_URL);
+                    return;
+                }
+                throw new Error(project.detail || `Request failed with status ${response.status}.`);
+            }
+
+            updateProjectStarButton(button, project);
+        } catch (error) {
+            console.error('Error toggling project star:', error);
+            showToast('Could not update star', 'Please sign in and try again.', 'error');
+        } finally {
+            button.disabled = false;
+        }
     }
 
     // Fetch project data
@@ -143,7 +186,7 @@
             listContainer.innerHTML = '';
             statusElem.textContent = "Loading..."
             
-            const url = searchQuery ? `${BASE_PROJECTS_ENDPOINT}?title=${encodeURIComponent(searchQuery)}` : BASE_PROJECTS_ENDPOINT;
+            const url = searchQuery ? `${PROJECTS_BASE_ENDPOINT}?title=${encodeURIComponent(searchQuery)}` : PROJECTS_BASE_ENDPOINT;
             
             const response = await fetch(url, {
                 headers: { 'Accept': 'application/json' },
@@ -207,7 +250,7 @@
         submitButton.disabled = true;
 
         try {
-            const response = await fetch(BASE_PROJECTS_ENDPOINT, {
+            const response = await fetch(PROJECTS_BASE_ENDPOINT, {
                 method: 'POST',
                 headers: { 'X-CSRFToken': getCookie('csrftoken') },
                 body: new FormData(projectForm),

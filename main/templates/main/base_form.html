@@ -27,8 +27,12 @@
         </div>
     </section>
     <script>
-        const choices = new Choices(document.querySelector("select"), {
-            removeItemButton: true,
-        });
+        window.addEventListener('load', function() {
+            if (!choices) {
+                const choices = new Choices(document.querySelector("select"), {
+                    removeItemButton: true,
+                });
+            }
+        }
     </script>
 {% endblock %}

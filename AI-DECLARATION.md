@@ -27,3 +27,5 @@ In some repetitive sections (especially unit tests), complete code is generated 
 - Questions + debugging on ajax & HTML escaping: https://chatgpt.com/s/cx_6ac0bac7be288191bb818a6c9367569d
 - Slug field list as input in forms to submit to the create API: https://www.perplexity.ai/search/89897fa6-eac1-4092-a862-393ab04a38dd
 - Debugging failing tests: https://chatgpt.com/s/cx_6af17df0036c8191820e37ccd11c496f
+- Router without viewset, permissions on function-based api_view: https://chatgpt.com/share/6af18b14-ca34-83ec-8121-148b8b9ebc1f
+- Star into AJAX: https://chatgpt.com/s/cx_6af1923153f081919af84d931d831728

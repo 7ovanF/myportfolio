@@ -10,11 +10,13 @@ from django.contrib.auth.decorators import login_required
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework import status
 
 from .models import Project, Experience
 from .forms import ProjectForm, ExperienceForm
-from .serializers import ProjectSerializer
+from .serializers import ProjectSerializer, ExperienceSerializer
+from .permissions import ExperiencePermissions
 
 # fix from https://www.perplexity.ai/search/5b78a4ab-e9fe-454e-ba49-ff7122f099a2
 base_context = {
@@ -49,30 +51,6 @@ profile_context = {
         }
     ],
 }
-
-# izin menggunakan implementasi ModelViewSet, semoga boleh
-class ProjectViewSet(ModelViewSet):
-    queryset = Project.objects.all()
-    serializer_class = ProjectSerializer
-    # just use default permission_classes and authentication_classes (settings.py)
-
-    def get_queryset(self):
-        queryset = Project.objects.prefetch_related("skills", "starred_by")
-        title_query = self.request.query_params.get("title", "").strip()
-        if title_query:
-            queryset = queryset.filter(title__icontains=title_query)
-        return queryset
-
-    @action(methods=['post'], detail=True, permission_classes=[IsAuthenticated],
-            url_path='toggle_star', url_name='toggle_star')
-    def toggle_star(self, request, pk):
-        project = self.get_object()
-        if request.user in project.starred_by.all():
-            project.starred_by.remove(request.user)
-        else:
-            project.starred_by.add(request.user)
-        return Response(ProjectSerializer(instance=project, context={"request": request}).data)
-
 def landing_page(request):
     last_login = request.COOKIES.get('last_login', '')
     context = {
@@ -101,7 +79,31 @@ def projects(request):
         }
     return render(request, "main/projects.html", context)
 
-# APIs
+# DRF APIs
+# izin menggunakan implementasi ModelViewSet, semoga boleh
+class ProjectViewSet(ModelViewSet):
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    # just use default permission_classes and authentication_classes (settings.py)
+
+    def get_queryset(self):
+        queryset = Project.objects.prefetch_related("skills", "starred_by")
+        title_query = self.request.query_params.get("title", "").strip()
+        if title_query:
+            queryset = queryset.filter(title__icontains=title_query)
+        return queryset
+
+    @action(methods=['post'], detail=True, permission_classes=[IsAuthenticated],
+            url_path='toggle_star', url_name='toggle_star')
+    def toggle_star(self, request, pk):
+        project = self.get_object()
+        if request.user in project.starred_by.all():
+            project.starred_by.remove(request.user)
+        else:
+            project.starred_by.add(request.user)
+        return Response(ProjectSerializer(instance=project, context={"request": request}).data)
+
+# APIs (deprecated basically; i cant keep track of which ones are)
 def get_projects_json(request):
     title_query = request.GET.get("title", "").strip()
     # prefetched as recommended by django ORM lens
@@ -212,7 +214,61 @@ def experience(request):
         }
     return render(request, "main/experience.html", context)
 
-# APIs
+# DRF APIs
+@api_view(["GET", "POST"])
+@permission_classes([ExperiencePermissions])
+# auth classes set to default in settings.py
+def experience_list(request):
+    if request.method == "GET":
+        experiences = Experience.objects.prefetch_related("starred_by")
+        title_query = request.query_params.get("title", "").strip()
+        if title_query:
+            experiences = experiences.filter(title__icontains=title_query)
+        serializer = ExperienceSerializer(experiences, many=True)
+        return Response(serializer.data)
+
+    elif request.method == "POST":
+        serializer = ExperienceSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["GET", "PUT", "DELETE"])
+@permission_classes([ExperiencePermissions])
+def experience_detail(request, experience_id):
+    try:
+        experience = Experience.objects.get(pk=experience_id)
+    except Experience.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == "GET":
+        serializer = ExperienceSerializer(experience)
+        return Response(serializer.data)
+
+    elif request.method == "PUT":
+        serializer = ExperienceSerializer(experience, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == "DELETE":
+        experience.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def experience_toggle_star(request, experience_id):
+    experience = get_object_or_404(Experience, pk=experience_id)
+    if request.user in experience.starred_by.all():
+        experience.starred_by.remove(request.user)
+    else:
+        experience.starred_by.add(request.user)
+    return Response(ExperienceSerializer(instance=experience, context={"request": request}).data)
+
+
+# APIs (deprecated)
 def get_experiences_json(request):
     title_query = request.GET.get("title", "").strip()
     experiences = Experience.objects.prefetch_related("starred_by").all()

@@ -54,9 +54,9 @@ class ProjectAPITest(TestCase):
         )
         delete_response = self.client.delete(self.detail_url)
 
-        self.assertEqual(create_response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertEqual(update_response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertEqual(delete_response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(create_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(update_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(delete_response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertTrue(Project.objects.filter(pk=self.project.pk).exists())
 
     def test_authenticated_user_without_model_permissions_cannot_modify_projects(self):
@@ -133,7 +133,7 @@ class ProjectAPITest(TestCase):
 
     def test_toggle_star_requires_authentication_and_returns_current_state(self):
         anonymous_response = self.client.post(self.toggle_star_url, format="json")
-        self.assertEqual(anonymous_response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(anonymous_response.status_code, status.HTTP_403_FORBIDDEN)
 
         self.client.force_authenticate(self.member)
         star_response = self.client.post(self.toggle_star_url, format="json")
