@@ -46,10 +46,10 @@
     <script src="https://cdn.jsdelivr.net/npm/choices.js@11.1.0/public/assets/scripts/choices.min.js"></script>
  <script>
         window.addEventListener('load', function() {
-            if (!choices) {
+            if (typeof choices === 'undefined') {
                 const choices = new Choices(document.querySelector("select"), {
                     removeItemButton: true,
                 });
             }
-        }
+        });
     </script>

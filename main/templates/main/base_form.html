@@ -28,11 +28,11 @@
     </section>
     <script>
         window.addEventListener('load', function() {
-            if (!choices) {
+            if (typeof choices === 'undefined') {
                 const choices = new Choices(document.querySelector("select"), {
                     removeItemButton: true,
                 });
             }
-        }
+        });
     </script>
 {% endblock %}
