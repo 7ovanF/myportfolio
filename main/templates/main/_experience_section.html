@@ -17,7 +17,21 @@
         {% include "main/components/_form_search.html" with section_name="experience" %}
 
         <div id="experience-status" class="experience-status"></div>
-        <div id="experience-cards" class="experience-cards"></div>
+        <div id="experience-cards" class="experience-cards">
+            {# Server-rendered fallback for clients without JavaScript. #}
+            {% for experience in experiences %}
+                <article class="experience-card">
+                    <h3 class="experience-title">{{ experience.title }}</h3>
+                    <p>{{ experience.category }}</p>
+                    <p>{% if experience.is_ongoing %}active (running){% else %}inactive (dead){% endif %}</p>
+                    {% if perms.main.change_experience %}
+                        <a href="{% url 'main:update_experience' experience.pk %}" class="button form-update-button">Edit Experience</a>
+                    {% endif %}
+                </article>
+            {% empty %}
+                <p class="experience-status">You could say this guy is... inexperienced</p>
+            {% endfor %}
+        </div>
     </div>
 </section>
 <script src="{% static "js/helpers.js" %}"></script>
@@ -163,7 +177,13 @@
             // ight cant be bothered to have proper error emssages lmao
             if (!response.ok) throw new Error("Failed to fetch data!");
 
-            const data = (await response.json()).data;
+            const payload = await response.json();
+            const data = payload.data || payload.map(({ pk, fields }) => ({
+                id: pk,
+                ...fields,
+                is_starred: false,
+                starred_by_names: [],
+            }));
             
             if (data.length === 0) {
                 statusElem.textContent = "You could say this guy is... inexperienced";

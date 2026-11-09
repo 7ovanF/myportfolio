@@ -1,7 +1,10 @@
+import json
+
 from django.contrib.auth.decorators import permission_required
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
+from django.core import serializers
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from rest_framework.viewsets import ModelViewSet
@@ -53,6 +56,13 @@ class ProjectViewSet(ModelViewSet):
     serializer_class = ProjectSerializer
     # just use default permission_classes and authentication_classes (settings.py)
 
+    def get_queryset(self):
+        queryset = Project.objects.prefetch_related("skills", "starred_by")
+        title_query = self.request.query_params.get("title", "").strip()
+        if title_query:
+            queryset = queryset.filter(title__icontains=title_query)
+        return queryset
+
     @action(methods=['post'], detail=True, permission_classes=[IsAuthenticated],
             url_path='toggle_star', url_name='toggle_star')
     def toggle_star(self, request, pk):
@@ -78,10 +88,16 @@ def landing_page(request):
 # PROJECTS 
 # ========
 def projects(request):
+    title_query = request.GET.get("title", "").strip()
+    project_list = Project.objects.prefetch_related("skills")
+    if title_query:
+        project_list = project_list.filter(title__icontains=title_query)
+
     context = {
             "active_page": "projects",
             **base_context,
             "project_form": ProjectForm(),
+            "projects": project_list,
         }
     return render(request, "main/projects.html", context)
 
@@ -94,28 +110,9 @@ def get_projects_json(request):
     if title_query:
         projects = projects.filter(title__icontains=title_query)
 
-    data = []
-    for project in projects:
-        starred_by = project.starred_by.all()
-        is_starred = request.user in starred_by if request.user.is_authenticated else False
-        skill_titles = [skill.title for skill in project.skills.all()]
-        starred_by_names = [user.username for user in starred_by]
-
-        data.append({
-            "id": str(project.pk),
-            "title": project.title,
-            "url": project.url,
-            "thumbnail": project.thumbnail,
-            "description": project.description,
-            "skill_titles": skill_titles,
-            "star_count": starred_by.count(),
-            "is_starred": is_starred,
-            "starred_by_names": starred_by_names,
-        })
-    response = {
-        "data": data,
-    }
-    return JsonResponse(response, safe=False)
+    # This is the original, non-DRF endpoint.  The browser uses the DRF
+    # endpoint; retain Django's serialized-list response for its callers.
+    return JsonResponse(json.loads(serializers.serialize("json", projects)), safe=False)
 
 # Forms 
 @login_required()
@@ -202,10 +199,16 @@ def toggle_project_star(request, project_id):
 # ==========
 # Refer to experience (plural) as experience*s* internally
 def experience(request):
+    title_query = request.GET.get("title", "").strip()
+    experience_list = Experience.objects.all()
+    if title_query:
+        experience_list = experience_list.filter(title__icontains=title_query)
+
     context = {
             "active_page": "experience",
             **base_context,
             "experience_form": ExperienceForm(),
+            "experiences": experience_list,
         }
     return render(request, "main/experience.html", context)
 
@@ -217,26 +220,7 @@ def get_experiences_json(request):
     if title_query:
         experiences = experiences.filter(title__icontains=title_query)
     
-    data = []
-    for experience in experiences:
-        is_starred = request.user in experience.starred_by.all()
-        starred_by_names = [starrer.username for starrer in experience.starred_by.all()]
-        data.append({
-            "id": experience.id,
-            "title": experience.title,
-            "description": experience.description,
-            "category": experience.category,
-            "thumbnail": experience.thumbnail,
-            "started_at": experience.started_at,
-            "ended_at": experience.ended_at,
-            "is_starred": is_starred,
-            "starred_by_names": starred_by_names,
-        })
-
-    response = {
-        "data": data
-    }
-    return JsonResponse(response, safe=False)
+    return JsonResponse(json.loads(serializers.serialize("json", experiences)), safe=False)
 
 # Forms 
 @login_required()

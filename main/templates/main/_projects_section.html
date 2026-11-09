@@ -20,6 +20,21 @@
         <div id="projects-status" class="empty-state"></div>
         <!-- This layout is heavily inspired by https://thavlik.dev/ -->
         <div id="project-cards" class="project-cards">
+            {# A useful non-JavaScript fallback; JavaScript replaces these cards. #}
+            {% for project in projects %}
+                <article class="project-card">
+                    <h3 class="project-title">{{ project.title }}</h3>
+                    <div class="project-desc">{{ project.description|default:"No description was provided for this project." }}</div>
+                    {% for skill in project.skills.all %}
+                        <a class="button project-skill-btn">{{ skill.title_slug }}</a>
+                    {% endfor %}
+                    {% if perms.main.change_project %}
+                        <a href="{% url 'main:update_project' project.pk %}" class="button form-update-button">Edit Project</a>
+                    {% endif %}
+                </article>
+            {% empty %}
+                <p class="empty-state">{% if request.GET.title %}Nothing's found...{% else %}Nothing{% endif %}</p>
+            {% endfor %}
         </div>
     </div>
 </section>

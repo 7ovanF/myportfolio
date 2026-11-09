@@ -3,8 +3,149 @@ from django.contrib.auth.models import Permission
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
+from rest_framework import status
+from rest_framework.test import APIClient
 
 from main.models import Project, Skill, Experience
+
+
+class ProjectAPITest(TestCase):
+    """Contract tests for the DRF projects endpoint at /api/v1/projects/."""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.owner = get_user_model().objects.create_superuser(
+            username="owner", password="test-password"
+        )
+        self.member = get_user_model().objects.create_user(
+            username="member", password="test-password"
+        )
+        self.skill = Skill.objects.create(
+            title="Django", description="Web framework", proficiency="advanced"
+        )
+        self.project = Project.objects.create(
+            title="Portfolio", description="My portfolio", url="https://example.com"
+        )
+        self.project.skills.add(self.skill)
+
+        self.list_url = reverse("api:project-list")
+        self.detail_url = reverse("api:project-detail", args=[self.project.pk])
+        self.toggle_star_url = reverse("api:project-toggle_star", args=[self.project.pk])
+
+    def test_anonymous_users_can_list_and_retrieve_projects(self):
+        list_response = self.client.get(self.list_url)
+        detail_response = self.client.get(self.detail_url)
+
+        self.assertEqual(list_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(detail_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(list_response.data, [detail_response.data])
+        self.assertEqual(detail_response.data["id"], str(self.project.pk))
+        self.assertEqual(detail_response.data["skill_slugs"], [self.skill.title_slug])
+        self.assertEqual(detail_response.data["star_count"], 0)
+        self.assertFalse(detail_response.data["is_starred"])
+        self.assertEqual(detail_response.data["starred_by_names"], [])
+
+    def test_anonymous_users_cannot_create_update_or_delete_projects(self):
+        create_response = self.client.post(
+            self.list_url, {"title": "Blocked", "skill_slugs": []}, format="json"
+        )
+        update_response = self.client.patch(
+            self.detail_url, {"title": "Blocked"}, format="json"
+        )
+        delete_response = self.client.delete(self.detail_url)
+
+        self.assertEqual(create_response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(update_response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(delete_response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertTrue(Project.objects.filter(pk=self.project.pk).exists())
+
+    def test_authenticated_user_without_model_permissions_cannot_modify_projects(self):
+        self.client.force_authenticate(self.member)
+
+        create_response = self.client.post(
+            self.list_url, {"title": "Blocked", "skill_slugs": []}, format="json"
+        )
+        update_response = self.client.patch(
+            self.detail_url, {"title": "Blocked"}, format="json"
+        )
+        delete_response = self.client.delete(self.detail_url)
+
+        self.assertEqual(create_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(update_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(delete_response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertTrue(Project.objects.filter(pk=self.project.pk).exists())
+
+    def test_owner_can_create_a_project_and_assign_skills(self):
+        self.client.force_authenticate(self.owner)
+
+        response = self.client.post(
+            self.list_url,
+            {
+                "title": "REST API",
+                "url": "https://example.com/api",
+                "description": "Created through the REST API.",
+                "skill_slugs": [self.skill.title_slug],
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        project = Project.objects.get(pk=response.data["id"])
+        self.assertEqual(project.title, "REST API")
+        self.assertEqual(project.url, "https://example.com/api")
+        self.assertQuerySetEqual(project.skills.all(), [self.skill])
+        self.assertEqual(response.data["skill_slugs"], [self.skill.title_slug])
+
+    def test_owner_can_partially_update_and_delete_a_project(self):
+        self.client.force_authenticate(self.owner)
+
+        update_response = self.client.patch(
+            self.detail_url,
+            {"title": "Updated Portfolio", "skill_slugs": []},
+            format="json",
+        )
+
+        self.assertEqual(update_response.status_code, status.HTTP_200_OK)
+        self.project.refresh_from_db()
+        self.assertEqual(self.project.title, "Updated Portfolio")
+        self.assertFalse(self.project.skills.exists())
+
+        delete_response = self.client.delete(self.detail_url)
+        self.assertEqual(delete_response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Project.objects.filter(pk=self.project.pk).exists())
+
+    def test_api_rejects_invalid_titles_and_unknown_skills(self):
+        self.client.force_authenticate(self.owner)
+
+        blank_title_response = self.client.post(
+            self.list_url, {"title": " <b> </b> ", "skill_slugs": []}, format="json"
+        )
+        unknown_skill_response = self.client.post(
+            self.list_url,
+            {"title": "Unknown Skill", "skill_slugs": ["not-a-skill"]},
+            format="json",
+        )
+
+        self.assertEqual(blank_title_response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(blank_title_response.data["title"], ["Title cannot be empty."])
+        self.assertEqual(unknown_skill_response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("skill_slugs", unknown_skill_response.data)
+
+    def test_toggle_star_requires_authentication_and_returns_current_state(self):
+        anonymous_response = self.client.post(self.toggle_star_url, format="json")
+        self.assertEqual(anonymous_response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        self.client.force_authenticate(self.member)
+        star_response = self.client.post(self.toggle_star_url, format="json")
+        unstar_response = self.client.post(self.toggle_star_url, format="json")
+
+        self.assertEqual(star_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(star_response.data["star_count"], 1)
+        self.assertTrue(star_response.data["is_starred"])
+        self.assertEqual(star_response.data["starred_by_names"], [self.member.username])
+        self.assertEqual(unstar_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(unstar_response.data["star_count"], 0)
+        self.assertFalse(unstar_response.data["is_starred"])
 
 
 class MainTest(TestCase):

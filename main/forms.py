@@ -9,7 +9,8 @@ class ProjectForm(ModelForm):
     skill_slugs = ModelMultipleChoiceField(
             queryset=Skill.objects.all(),
             to_field_name="title_slug",
-            widget=SelectMultiple()
+            widget=SelectMultiple(),
+            required=False,
             )
     class Meta:
         model = Project
@@ -68,6 +69,35 @@ class ProjectForm(ModelForm):
     def clean_description(self):
         description = strip_tags(self.cleaned_data["description"]).strip()
         return description
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # Older form submissions use the model field name and primary keys,
+        # while the AJAX form submits slugs.  Supporting both keeps the form
+        # endpoint backwards compatible.
+        skill_ids = self.data.getlist("skills")
+        if skill_ids:
+            cleaned_data["skill_slugs"] = Skill.objects.filter(pk__in=skill_ids)
+
+        return cleaned_data
+
+    def save(self, commit=True):
+        project = super().save(commit=commit)
+        selected_skills = self.cleaned_data["skill_slugs"]
+
+        if commit:
+            project.skills.set(selected_skills)
+        else:
+            original_save_m2m = self.save_m2m
+
+            def save_m2m():
+                original_save_m2m()
+                project.skills.set(selected_skills)
+
+            self.save_m2m = save_m2m
+
+        return project
 
 class ExperienceForm(ModelForm):
     class Meta:
